@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import './notFound.css'; // Custom styles
+import './notfound.css'; // Custom styles
 
 const NotFound = () => {
   return (
