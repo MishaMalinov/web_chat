@@ -1,0 +1,106 @@
+/* General Layout */
+.chat-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header {
+    background-color: #f8f9fa;
+    height: 60px;
+    padding-left: 60px !important;
+  }
+  
+  .chat-container {
+    display: flex;
+    height: calc(100vh - 60px);
+  }
+  
+  /* Sidebar Styles */
+  .sidebar {
+    width: 100%;
+    background-color: #ffffff;
+    height: 100%;
+    overflow-y: auto;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  /* Sidebar Hidden (for Mobile) */
+  .hide-sidebar {
+    transform: translateX(-100%);
+    position: absolute;
+    z-index: 1000;
+  }
+  
+  /* Sidebar Visible */
+  .show-sidebar {
+    transform: translateX(0);
+    position: absolute;
+    z-index: 1000;
+  }
+  
+  /* Chat Window */
+  .chat-window {
+    flex-grow: 1;
+    background-color: #f1f1f1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* Messages */
+  .messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+  }
+  
+  .message {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    max-width: 60%;
+  }
+  
+  .sent {
+    background-color: #007bff;
+    color: white;
+    align-self: flex-end;
+  }
+  
+  .received {
+    background-color: #e9ecef;
+    align-self: flex-start;
+  }
+  
+  .input-box {
+    padding: 10px;
+    background: white;
+    display: flex;
+  }
+  
+  /* Toggle Button (Mobile) */
+  .toggle-sidebar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    border: none;
+    background: none;
+  }
+  
+  @media (min-width: 768px) {
+    /* Show Sidebar by Default on Larger Screens */
+    .sidebar {
+      position: static;
+      transform: translateX(0);
+      width: 250px;
+    }
+    .toggle-sidebar {
+      display: none;
+    }
+    .header{
+        padding-left: 1rem !important;
+    }
+  }
+  
