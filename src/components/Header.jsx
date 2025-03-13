@@ -1,16 +1,17 @@
-import { Link } from "react-router-dom";
-import { FaUserCircle } from "react-icons/fa"; // For user icons
-// import '../styles/Chat.css';
+import { FaUserCircle } from "react-icons/fa";
 
-const Header = ({ user, interlocutor }) => {
+const Header = ({ user, interlocutor, onProfileClick }) => {
   return (
     <div className="header d-flex justify-content-between align-items-center p-3 shadow">
+      {/* Left - My Profile */}
       <div className="d-flex align-items-center">
-        <Link to="/profile" className="d-flex align-items-center text-decoration-none text-dark">
+        <span className="profile-link" onClick={onProfileClick}>
           <FaUserCircle size={40} className="me-2" />
           <span>{user.name}</span>
-        </Link>
+        </span>
       </div>
+
+      {/* Right - Interlocutor Profile */}
       <div className="d-flex align-items-center">
         {interlocutor && (
           <>

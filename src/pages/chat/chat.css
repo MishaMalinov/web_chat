@@ -1,21 +1,45 @@
 /* General Layout */
 .chat-page {
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-  
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+
+  /* Header Styling */
   .header {
     background-color: #f8f9fa;
     height: 60px;
-    padding-left: 60px !important;
   }
-  
+
+  /* Profile Button as Text */
+  .profile-link {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+  }
+
+  /* Hover Effect */
+  .profile-link:hover {
+    color: #007bff;
+  }
+
+  .profile-link svg {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .profile-link:hover svg {
+    transform: scale(1.1);
+  }
+
   .chat-container {
     display: flex;
     height: calc(100vh - 60px);
   }
-  
+
   /* Sidebar Styles */
   .sidebar {
     width: 100%;
@@ -24,21 +48,21 @@
     overflow-y: auto;
     transition: transform 0.3s ease-in-out;
   }
-  
+
   /* Sidebar Hidden (for Mobile) */
   .hide-sidebar {
     transform: translateX(-100%);
     position: absolute;
     z-index: 1000;
   }
-  
+
   /* Sidebar Visible */
   .show-sidebar {
     transform: translateX(0);
     position: absolute;
     z-index: 1000;
   }
-  
+
   /* Chat Window */
   .chat-window {
     flex-grow: 1;
@@ -47,38 +71,38 @@
     display: flex;
     flex-direction: column;
   }
-  
+
   /* Messages */
   .messages {
     flex-grow: 1;
     padding: 10px;
     overflow-y: auto;
   }
-  
+
   .message {
     padding: 10px;
     margin-bottom: 5px;
     border-radius: 5px;
     max-width: 60%;
   }
-  
+
   .sent {
     background-color: #007bff;
     color: white;
     align-self: flex-end;
   }
-  
+
   .received {
     background-color: #e9ecef;
     align-self: flex-start;
   }
-  
+
   .input-box {
     padding: 10px;
     background: white;
     display: flex;
   }
-  
+
   /* Toggle Button (Mobile) */
   .toggle-sidebar {
     position: absolute;
@@ -88,19 +112,45 @@
     border: none;
     background: none;
   }
-  
+
+  .resize-handle {
+    display: none; /* Disable resizing on mobile */
+  }
+
   @media (min-width: 768px) {
+
     /* Show Sidebar by Default on Larger Screens */
     .sidebar {
-      position: static;
-      transform: translateX(0);
-      width: 250px;
+      height: 100vh;
+      background-color: #ffffff;
+      overflow-y: auto;
+      position: relative;
+      transition: none;
     }
+    
+    /* Resize Handle */
+    .resize-handle {
+      width: 5px;
+      height: 100%;
+      background-color: #ccc;
+      display: block;
+      cursor: ew-resize;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    
+    .resize-handle:hover {
+      background-color: #888;
+    }
+
     .toggle-sidebar {
       display: none;
     }
-    .header{
-        padding-left: 1rem !important;
+
+    .header {
+      padding-left: 1rem !important;
     }
   }
-  
+
+}

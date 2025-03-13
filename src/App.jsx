@@ -5,7 +5,7 @@ import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Chat from "./pages/chat/Chat";
 import ChatRoom from "./pages/ChatRoom";
-import Profile from "./pages/Profile";
+import Profile from "./components/Profile";
 // import Settings from "./pages/Settings";
 import NotFound from "./pages/notfound/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
