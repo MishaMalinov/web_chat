@@ -14,7 +14,7 @@ const ChatPage = () => {
   const [showProfile, setShowProfile] = useState(false); // Profile Modal State
   const users = [
     currentUser,
-    { id: 2, name: "Alice" },
+    { id: 2, name: "Aliceeeeeeeeeeee" },
     { id: 3, name: "Bob" },
     { id: 4, name: "Charlie" }
   ];
@@ -29,7 +29,7 @@ const ChatPage = () => {
       </button>
 
       <div className="d-flex chat-container">
-        <Sidebar users={users} onSelectUser={setSelectedUser} isOpen={isSidebarOpen} />
+        <Sidebar users={users} onSelectUser={setSelectedUser} isOpen={isSidebarOpen} onProfileClick={() => setShowProfile(true)} user={currentUser} />
         <ChatWindow selectedUser={selectedUser} />
       </div>
 

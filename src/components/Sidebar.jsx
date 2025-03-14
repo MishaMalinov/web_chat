@@ -2,7 +2,7 @@ import { useState,useRef } from "react";
 import { FaUserCircle } from "react-icons/fa";
 
 
-const Sidebar = ({ users, onSelectUser, isOpen }) => {
+const Sidebar = ({ users, onSelectUser, isOpen, onProfileClick,user}) => {
   const [search, setSearch] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(window.innerWidth < 768 ? "100%" : 250); // Default width
   const sidebarRef = useRef(null);
@@ -46,6 +46,12 @@ const Sidebar = ({ users, onSelectUser, isOpen }) => {
       className={`sidebar p-3 shadow ${isOpen ? "show-sidebar" : "hide-sidebar"}`}
       style={{ width: sidebarWidth }}
     >
+      <div className="d-flex align-items-center mb-3">
+        <span className="profile-link d-md-none d-flex" onClick={onProfileClick}>
+          <FaUserCircle size={40} className="me-2" />
+          <span>{user.name}</span>
+        </span>
+      </div>
       {/* Search Input */}
       <input
         type="text"

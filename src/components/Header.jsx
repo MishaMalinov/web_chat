@@ -5,7 +5,7 @@ const Header = ({ user, interlocutor, onProfileClick }) => {
     <div className="header d-flex justify-content-between align-items-center p-3 shadow">
       {/* Left - My Profile */}
       <div className="d-flex align-items-center">
-        <span className="profile-link" onClick={onProfileClick}>
+        <span className="profile-link d-none d-md-flex" onClick={onProfileClick}>
           <FaUserCircle size={40} className="me-2" />
           <span>{user.name}</span>
         </span>
