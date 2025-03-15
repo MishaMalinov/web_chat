@@ -95,10 +95,32 @@
   /* Messages */
   .messages {
     flex-grow: 1;
-    padding: 10px;
+    padding: 25px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    scrollbar-width: 8px;
+    /* Scrollbar Track */
+    &::-webkit-scrollbar {
+      width: 8px; /* Width of the scrollbar */
+    }
+
+    /* Scrollbar Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #007bff; /* Scrollbar color */
+      border-radius: 4px;
+    }
+
+    /* Scrollbar Handle on Hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background: #0056b3;
+    }
+
+    /* Scrollbar Track Background */
+    &::-webkit-scrollbar-track {
+      background: #0057b33d;
+      border-radius: 4px;
+    }
   }
 
   .message {
@@ -106,16 +128,16 @@
     margin-bottom: 5px;
     border-radius: 5px;
     max-width: 60%;
+    background-color: #007bff;
+    color: white;
+    word-break: break-word;
   }
 
   .sent {
-    background-color: #007bff;
-    color: white;
     align-self: flex-end;
   }
 
   .received {
-    background-color: #e9ecef;
     align-self: flex-start;
   }
 
@@ -143,7 +165,6 @@
 
     /* Show Sidebar by Default on Larger Screens */
     .sidebar {
-      height: 100vh;
       background-color: #ffffff;
       overflow-y: auto;
       position: relative;
