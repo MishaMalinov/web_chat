@@ -1,6 +1,6 @@
 .login-container {
     background-color: #f8f9fa;
-    /* Light background */
+    max-height: 100dvh;
 }
 
 .login-box {
