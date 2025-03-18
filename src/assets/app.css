@@ -2,6 +2,6 @@
     box-sizing: border-box;
 }
 body{
-    height: 100dvh;
-    /* max-height: 100dvh; */
+    /* height: 100dvh; */
+    max-height: 100svh;
 }

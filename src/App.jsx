@@ -5,7 +5,6 @@ import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import Register from "./pages/register/Register";
 import Chat from "./pages/chat/Chat";
-import ChatRoom from "./pages/ChatRoom";
 import Profile from "./components/Profile";
 // import Settings from "./pages/Settings";
 import NotFound from "./pages/notfound/NotFound";
@@ -22,7 +21,7 @@ const App = () => {
         {/* Protected Routes - Only for authenticated users */}
         <Route element={<PrivateRoute />}>
           <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:chatId" element={<ChatRoom />} />
+          <Route path="/chat/:username" element={<Chat />} />
           <Route path="/profile" element={<Profile />} />
           {/* <Route path="/settings" element={<Settings />} /> */}
         </Route>

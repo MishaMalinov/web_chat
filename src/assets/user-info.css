@@ -1,0 +1,43 @@
+/* UserInfo Container */
+.userinfo-container {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  /* Avatar Section */
+  .userinfo-avatar {
+    margin-bottom: 20px;
+  }
+  
+  .userinfo-avatar-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #007bff;
+  }
+  
+  .userinfo-avatar-icon {
+    color: #007bff;
+  }
+  
+  /* User Details */
+  .userinfo-detail {
+    margin-bottom: 15px;
+    text-align: left;
+  }
+  
+  .userinfo-label {
+    font-weight: bold;
+    color: #555;
+    display: block;
+  }
+  
+  .userinfo-text {
+    font-size: 16px;
+    color: #333;
+    padding: 8px;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+  

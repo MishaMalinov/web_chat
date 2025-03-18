@@ -1,13 +1,16 @@
 /* General Layout */
 .chat-page {
-  height: 100vh;
+  /* height: 100svh; */
+  max-height: 100dvh;
   display: flex;
   flex-direction: column;
-
+  overflow: hidden;
+  
   /* Header Styling */
   .header {
     background-color: #f8f9fa;
     height: 60px;
+    flex-shrink: 0;
   }
 
   /* Profile Button as Text */
@@ -37,7 +40,19 @@
 
   .chat-container {
     display: flex;
-    height: calc(100vh - 60px);
+    height: calc(100svh - 60px);
+    position: relative;
+  }
+  .user-info-link{
+    max-width: 200px;
+    img, svg{
+      flex-shrink: 0;
+    }
+    span{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   /* Sidebar Styles */
@@ -46,8 +61,11 @@
     width: 100%;
     background-color: #ffffff;
     height: 100%;
-    overflow-y: auto;
     transition: transform 0.3s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
   }
 
   /* Sidebar Hidden (for Mobile) */
@@ -62,6 +80,16 @@
     transform: translateX(0);
     position: absolute;
     z-index: 1000;
+  }
+  .list-group{
+    flex-grow: 1; /* Allow user list to take available space */
+    overflow-y: auto; /* Enable scrolling */
+    overflow-x: clip;
+    &::-webkit-scrollbar{
+      display: none;
+    }
+
+    scrollbar-width: none;
   }
   .list-group-item{
     transition-duration: .2s;
@@ -166,9 +194,10 @@
     /* Show Sidebar by Default on Larger Screens */
     .sidebar {
       background-color: #ffffff;
-      overflow-y: auto;
+      /* overflow-y: auto; */
       position: relative;
       transition: none;
+      height: 100%;
     }
     
     /* Resize Handle */

@@ -1,8 +1,9 @@
 import { useState,useRef } from "react";
-import { FaUserCircle } from "react-icons/fa";
+import { FaUserCircle, FaSearch } from "react-icons/fa";
+import { Button } from "react-bootstrap";
 
 
-const Sidebar = ({ users, onSelectUser, isOpen, onProfileClick,user}) => {
+const Sidebar = ({ users, onSelectUser, isOpen, onProfileClick,user, onSearchClick}) => {
   const [search, setSearch] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(window.innerWidth < 768 ? "100%" : 250); // Default width
   const sidebarRef = useRef(null);
@@ -52,6 +53,12 @@ const Sidebar = ({ users, onSelectUser, isOpen, onProfileClick,user}) => {
           <span>{user.name}</span>
         </span>
       </div>
+      
+      {/* Center - Global Search Button */}
+      <Button variant="outline-primary" className="mb-3 d-md-none d-block" onClick={() => onSearchClick(true)}>
+          <FaSearch size={20} className="me-2" /> Global Search
+      </Button>
+      
       {/* Search Input */}
       <input
         type="text"

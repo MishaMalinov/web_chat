@@ -1,42 +1,92 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import ChatWindow from "../../components/ChatWindow";
 import ProfileModal from "../../components/Profile";
+import Search from "../../components/Search";
+import UserInfo from "../../components/UserInfo";
 import { FaBars } from "react-icons/fa"; // Importing an icon for toggle
 import './chat.css';
+import { useNavigate, useParams } from "react-router-dom";
 
-const ChatPage = () => {
-  const currentUser = { id: 1, name: "Myself" };
+const Chat = () => {
+  const { username } = useParams();// username is unique
+  const currentUser = { id: 1, name: "Myself", username: "misha" };
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar toggle state
+  const [users, setUsers] = useState([]);
+  const [showProfileModal, setShowProfileModal] = useState(false); // Profile Modal State
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false); // Profile Modal State
+  const [showSearchModal, setShowSearchModal] = useState(false);
 
-  const [showProfile, setShowProfile] = useState(false); // Profile Modal State
-  const users = [
-    currentUser,
-    { id: 2, name: "Aliceeeeeeeeeeee" },
-    { id: 3, name: "Bob" },
-    { id: 4, name: "Charlie" }
-  ];
+  const navigate = useNavigate();
+
+  const selectUserHandler = (e) => {
+    const username = e.username;
+    navigate(`/chat/${username}`);
+    setIsSidebarOpen(!isSidebarOpen);
+    // setSelectedUser(e);
+
+  }
+
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      // Simulate fetching users from the backend
+      const usersList = [
+        currentUser,
+        { id: 2, name: "Aliceeeeeeeeeeee", username: "alice" },
+        { id: 3, name: "Bob", username: "bob" },
+        { id: 4, name: "Charlie", username: "charlieXCX" },
+      ];
+      setUsers(usersList);
+    };
+
+    fetchUsers();
+  }, []);
+
+  // Wait for users to be set, then find the user
+  useEffect(() => {
+    if (users.length > 0) {
+      const foundUser = users.find((u) => u.username === username);
+      setSelectedUser(foundUser || null);
+    }
+  }, [users, username]); // Runs when users or username change
+
 
   return (
     <div className="chat-page">
-      <Header user={currentUser} interlocutor={selectedUser} onProfileClick={() => setShowProfile(true)} />
-      
+      <Header user={currentUser}
+        interlocutor={selectedUser}
+        onProfileClick={() => setShowProfileModal(true)}
+        onUserInfoClick={() => setShowUserInfoModal(true)}
+        setShowSearchModal={() => setShowSearchModal(true)}
+
+      />
+
       {/* Sidebar Toggle Button (Visible on Small Screens) */}
       <button className="toggle-sidebar btn btn-light d-md-none" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
         <FaBars size={24} />
       </button>
 
       <div className="d-flex chat-container">
-        <Sidebar users={users} onSelectUser={setSelectedUser} isOpen={isSidebarOpen} onProfileClick={() => setShowProfile(true)} user={currentUser} />
+        <Sidebar  users={users} 
+                  onSelectUser={selectUserHandler} 
+                  isOpen={isSidebarOpen} 
+                  onProfileClick={() => setShowProfileModal(true)} 
+                  user={currentUser} 
+                  onSearchClick={()=>setShowSearchModal(true)}
+        />
         <ChatWindow selectedUser={selectedUser} />
       </div>
 
-      {/* Profile Modal */}
-      <ProfileModal show={showProfile} handleClose={() => setShowProfile(false)} />
+      {/* Modals */}
+      <ProfileModal show={showProfileModal} handleClose={() => setShowProfileModal(false)} />
+      <UserInfo show={showUserInfoModal} handleClose={() => setShowUserInfoModal(false)} />
+      <Search show={showSearchModal} handleClose={() => setShowSearchModal(false)} />
+
     </div>
   );
 };
 
-export default ChatPage;
+export default Chat;
