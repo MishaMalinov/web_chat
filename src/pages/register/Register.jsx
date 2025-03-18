@@ -5,7 +5,7 @@ import './register.css'; // Custom styles
 
 const Register = () => {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -16,7 +16,7 @@ const Register = () => {
 
   const handleRegister = () => {
     // Validation checks
-    if (!fullName || !email || !password) {
+    if (!username || !email || !password) {
       setError("All fields are required.");
       return;
     }
@@ -43,9 +43,9 @@ const Register = () => {
           <input 
             type="text" 
             className="form-control" 
-            placeholder="Full Name" 
-            value={fullName} 
-            onChange={(e) => setFullName(e.target.value)} 
+            placeholder="Username" 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
           />
         </div>
         <div className="form-group mb-3">
