@@ -73,6 +73,7 @@ const Chat = () => {
         <Sidebar  users={users} 
                   onSelectUser={selectUserHandler} 
                   isOpen={isSidebarOpen} 
+                  setIsOpen={setIsSidebarOpen}
                   onProfileClick={() => setShowProfileModal(true)} 
                   user={currentUser} 
                   onSearchClick={()=>setShowSearchModal(true)}

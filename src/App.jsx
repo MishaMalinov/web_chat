@@ -1,4 +1,4 @@
-import React from "react";
+import { useEffect} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./assets/app.css";
 import Home from "./pages/home/Home";
@@ -11,6 +11,20 @@ import NotFound from "./pages/notfound/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
 
 const App = () => {
+
+  useEffect(() => {
+    const preventSwipeBack = (event) => {
+      if (event.touches[0].clientX < 50 && event.touches[0].clientY > 60) {
+        event.preventDefault();
+      }
+    };
+
+    document.addEventListener("touchstart", preventSwipeBack, { passive: false });
+
+    return () => {
+      document.removeEventListener("touchstart", preventSwipeBack);
+    };
+  }, []);
   return (
     <Router>
       <Routes>
