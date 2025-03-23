@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './register.css'; // Custom styles
 
@@ -14,7 +15,7 @@ const Register = () => {
     return /\S+@\S+\.\S+/.test(email);
   };
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // Validation checks
     if (!username || !email || !password) {
       setError("All fields are required.");
@@ -29,9 +30,27 @@ const Register = () => {
       return;
     }
 
-    // Simulating registration
-    localStorage.setItem("token", "dummy_token");
-    navigate("/chat");
+    try {
+      const response = await axios.post("http://127.0.0.1:8000/api/register", {
+        username: username,
+        email: email,
+        password: password,
+        password_confirmation: password,
+      });
+
+      // Save token in local storage
+      localStorage.setItem("token", response.data.token);
+      console.log(response.data);
+      // Redirect to chat page
+      navigate("/chat");
+    } catch (error) {
+      if (error.response) {
+        setError(error.response.data.message || "Registration failed.");
+      } else {
+        setError("Network error. Please try again.");
+      }
+    }
+
   };
 
   return (

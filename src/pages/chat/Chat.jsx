@@ -8,6 +8,7 @@ import UserInfo from "../../components/UserInfo";
 import { FaBars } from "react-icons/fa"; // Importing an icon for toggle
 import './chat.css';
 import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 
 const Chat = () => {
   const { username } = useParams();// username is unique
@@ -24,10 +25,27 @@ const Chat = () => {
   const selectUserHandler = (e) => {
     const username = e.username;
     navigate(`/chat/${username}`);
-    setIsSidebarOpen(!isSidebarOpen);
-    // setSelectedUser(e);
 
-  }
+    // Hide sidebar only on phones (screen width < 768px)
+    if (window.innerWidth < 768) {
+        setIsSidebarOpen(false);
+    }
+  };
+  const fetchProfile = async () => {
+    const token = localStorage.getItem("token");
+
+    try {
+      const response = await axios.get("http://127.0.0.1:8000/api/user", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      
+      console.log("User Data:", response.data);
+    } catch (error) {
+      console.error("Unauthorized request", error.response?.data);
+    }
+  };
 
 
   useEffect(() => {
@@ -41,7 +59,8 @@ const Chat = () => {
       ];
       setUsers(usersList);
     };
-
+    
+    fetchProfile();
     fetchUsers();
   }, []);
 

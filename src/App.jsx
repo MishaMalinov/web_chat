@@ -36,8 +36,6 @@ const App = () => {
         <Route element={<PrivateRoute />}>
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:username" element={<Chat />} />
-          <Route path="/profile" element={<Profile />} />
-          {/* <Route path="/settings" element={<Settings />} /> */}
         </Route>
 
         {/* 404 Page */}
