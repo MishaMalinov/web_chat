@@ -39,10 +39,8 @@ const Register = () => {
       });
 
       // Save token in local storage
-      localStorage.setItem("token", response.data.token);
-      console.log(response.data);
       // Redirect to chat page
-      navigate("/chat");
+      navigate("/login");
     } catch (error) {
       if (error.response) {
         setError(error.response.data.message || "Registration failed.");

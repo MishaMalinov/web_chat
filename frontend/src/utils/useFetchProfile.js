@@ -3,9 +3,17 @@ import axios from 'axios';
 
 function useFetchProfile() {
   const [userData, setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    console.log("token:")
+    console.log(token)
+    if (!token) {
+      
+      setLoading(false); // <== завершити, якщо токена немає
+      return;
+    }
 
     const fetchData = async () => {
       try {
@@ -19,13 +27,15 @@ function useFetchProfile() {
       } catch (error) {
         setUserData(null)
         console.error("Unauthorized request", error.response?.data);
+      } finally{
+        setLoading(false);
       }
     };
 
     fetchData();
   }, []);
 
-  return userData;
+  return {userData,loading};
 }
 
 export default useFetchProfile;

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import "../assets/profile.css";
+import axios from "axios";
 
-const Profile = ({ show, handleClose }) => {
+const Profile = ({ show, handleClose,userData }) => {
   const [user, setUser] = useState({
     avatar: null,
     username: "JohnDoe",
@@ -11,8 +12,10 @@ const Profile = ({ show, handleClose }) => {
   });
 
   const [newAvatar, setNewAvatar] = useState(null);
-  const [newUsername, setNewUsername] = useState(user.username);
-  const [newEmail, setNewEmail] = useState(user.email);
+  const [newName, setNewName] = useState(userData.name||"");
+
+  const [newUsername, setNewUsername] = useState(userData.username);
+  const [newEmail, setNewEmail] = useState(userData.email);
 
   // Handle Avatar Upload
   const handleAvatarChange = (e) => {
@@ -37,6 +40,10 @@ const Profile = ({ show, handleClose }) => {
     handleClose(); // Close modal after saving
   };
 
+  const handleLogout = ()=>{
+    localStorage.removeItem("token");
+    window.location.href = "/login"; 
+  }
   return (
     <Modal show={show} onHide={handleClose} centered>
       <Modal.Header closeButton>
@@ -53,6 +60,17 @@ const Profile = ({ show, handleClose }) => {
           <input type="file" accept="image/*" onChange={handleAvatarChange} className="form-control mt-2" />
         </div>
 
+        {/* Name Input */}
+        <div className="form-group mt-3">
+          <label>Name</label>
+          <input
+            type="text"
+            className="form-control"
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Enter your name"
+          />
+        </div>
         {/* Username Input */}
         <div className="form-group mt-3">
           <label>Username</label>
@@ -61,6 +79,7 @@ const Profile = ({ show, handleClose }) => {
             className="form-control"
             value={newUsername}
             onChange={(e) => setNewUsername(e.target.value)}
+            placeholder="Enter your username"
           />
         </div>
 
@@ -72,11 +91,12 @@ const Profile = ({ show, handleClose }) => {
             className="form-control"
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
+            placeholder="Enter your email"
           />
         </div>
       </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleClose}>Close</Button>
+      <Modal.Footer className="d-flex justify-content-between">
+        <Button variant="danger" onClick={handleLogout}>Logout</Button>
         <Button variant="primary" onClick={handleSave}>Save Changes</Button>
       </Modal.Footer>
     </Modal>

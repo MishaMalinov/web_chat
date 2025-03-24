@@ -3,7 +3,7 @@ import { FaUserCircle, FaSearch } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 // import Search from "./Search";
 
-const Header = ({ user, interlocutor, onProfileClick, onUserInfoClick,setShowSearchModal }) => {
+const Header = ({ userData, interlocutor, onProfileClick, onUserInfoClick,setShowSearchModal }) => {
   // const [showSearchModal, setShowSearchModal] = useState(false);
 
   return (
@@ -13,7 +13,7 @@ const Header = ({ user, interlocutor, onProfileClick, onUserInfoClick,setShowSea
         <div className="d-flex align-items-center">
           <span className="profile-link d-none d-md-flex" onClick={onProfileClick}>
             <FaUserCircle size={40} className="me-2" />
-            <span>{user.name}</span>
+            <span>{userData.name?userData.name:userData.username}</span>
           </span>
         </div>
 

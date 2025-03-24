@@ -10,7 +10,7 @@ import './chat.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
-const Chat = () => {
+const Chat = ({userData}) => {
   const { username } = useParams();// username is unique
   const currentUser = { id: 1, name: "Myself", username: "misha" };
   const [selectedUser, setSelectedUser] = useState(null);
@@ -59,7 +59,7 @@ const Chat = () => {
 
   return (
     <div className="chat-page">
-      <Header user={currentUser}
+      <Header userData={userData}
         interlocutor={selectedUser}
         onProfileClick={() => setShowProfileModal(true)}
         onUserInfoClick={() => setShowUserInfoModal(true)}
@@ -85,7 +85,7 @@ const Chat = () => {
       </div>
 
       {/* Modals */}
-      <ProfileModal show={showProfileModal} handleClose={() => setShowProfileModal(false)} />
+      <ProfileModal show={showProfileModal} handleClose={() => setShowProfileModal(false)} userData={userData} />
       <UserInfo show={showUserInfoModal} handleClose={() => setShowUserInfoModal(false)} />
       <Search show={showSearchModal} handleClose={() => setShowSearchModal(false)} />
 

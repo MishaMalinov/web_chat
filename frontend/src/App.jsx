@@ -10,22 +10,16 @@ import Profile from "./components/Profile";
 import NotFound from "./pages/notfound/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
 import preventSwipe from "./utils/preventSwipe";
-import fetchProfile from "./utils/fetchProfile";
+import fetchProfile from "./utils/useFetchProfile";
 import PublicRoute from "./components/PublicRoute";
 import LoadingScreen from "./pages/loading/LoadingScreen";
 
 const App = () => {
   // const [userData,setUserData] = useState(null);
-  const [loading, setLoading] = useState(true);
-
+  
+  const [fetched, setFetched] = useState(true);
   preventSwipe();
-  const userData = fetchProfile();
-
-  useEffect(() => {
-    if(userData){
-      setLoading(false);
-    }
-  }, [userData]);
+  const {userData,loading} = fetchProfile();
 
   if(loading){
     return <LoadingScreen />;
@@ -42,8 +36,8 @@ const App = () => {
         
         {/* Protected Routes - Only for authenticated users */}
         <Route element={<PrivateRoute userData={userData}/>}>
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/chat/:username" element={<Chat />} />
+          <Route path="/chat" element={<Chat userData={userData}/>} />
+          <Route path="/chat/:username" element={<Chat userData={userData}/>} />
         </Route>
 
         {/* 404 Page */}

@@ -34,7 +34,7 @@ const Login = () => {
       // Save token in local storage
       localStorage.setItem("token", response.data.token);
       // Redirect to chat page
-      navigate("/chat");
+      window.location.reload(); 
     } catch (error) {
       if (error.response) {
         setError(error.response.data.message);
