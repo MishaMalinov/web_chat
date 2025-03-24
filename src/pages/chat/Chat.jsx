@@ -31,22 +31,7 @@ const Chat = () => {
         setIsSidebarOpen(false);
     }
   };
-  const fetchProfile = async () => {
-    const token = localStorage.getItem("token");
-
-    try {
-      const response = await axios.get("http://127.0.0.1:8000/api/user", {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
-      
-      console.log("User Data:", response.data);
-    } catch (error) {
-      console.error("Unauthorized request", error.response?.data);
-    }
-  };
-
+  
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -60,7 +45,6 @@ const Chat = () => {
       setUsers(usersList);
     };
     
-    fetchProfile();
     fetchUsers();
   }, []);
 

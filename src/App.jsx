@@ -1,4 +1,4 @@
-import { useEffect} from "react";
+import { useEffect, useState} from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./assets/app.css";
 import Home from "./pages/home/Home";
@@ -9,20 +9,26 @@ import Profile from "./components/Profile";
 // import Settings from "./pages/Settings";
 import NotFound from "./pages/notfound/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
+import preventSwipe from "./utils/preventSwipe";
+import fetchProfile from "./utils/fetchProfile";
 
 const App = () => {
+  // const [userData,setUserData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  preventSwipe();
+  const userData = fetchProfile();
 
   useEffect(() => {
-    const preventSwipeBack = (event) => {
-      if (event.touches[0].clientX < 50 && event.touches[0].clientY > 60) {
-        event.preventDefault();
-      }
-    };
+    if(userData){
+      setLoading(false);
+    }
+  }, [userData]);
 
-    document.addEventListener("touchstart", preventSwipeBack, { passive: false });
-
+  useEffect(() => {
+    
     return () => {
-      document.removeEventListener("touchstart", preventSwipeBack);
+      
     };
   }, []);
   return (
