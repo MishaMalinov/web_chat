@@ -65,8 +65,8 @@ class UserController extends Controller
         $searchTerm = $request->query('query');
 
         // Search users by username or email
-        $users = User::where('username', 'ILIKE', "%{$searchTerm}%")
-            ->orWhere('email', 'ILIKE', "%{$searchTerm}%")
+        $users = User::where('username', 'LIKE', "%{$searchTerm}%")
+//            ->orWhere('email', 'LIKE', "%{$searchTerm}%")
             ->limit(10) // Limit results for efficiency
             ->get();
 
