@@ -11,6 +11,8 @@ import NotFound from "./pages/notfound/NotFound";
 import PrivateRoute from "./components/PrivateRoute";
 import preventSwipe from "./utils/preventSwipe";
 import fetchProfile from "./utils/fetchProfile";
+import PublicRoute from "./components/PublicRoute";
+import LoadingScreen from "./pages/loading/LoadingScreen";
 
 const App = () => {
   // const [userData,setUserData] = useState(null);
@@ -25,21 +27,21 @@ const App = () => {
     }
   }, [userData]);
 
-  useEffect(() => {
-    
-    return () => {
-      
-    };
-  }, []);
+  if(loading){
+    return <LoadingScreen />;
+  }
+
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+        <Route element={<PublicRoute userData={userData}/>}>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
         
         {/* Protected Routes - Only for authenticated users */}
-        <Route element={<PrivateRoute />}>
+        <Route element={<PrivateRoute userData={userData}/>}>
           <Route path="/chat" element={<Chat />} />
           <Route path="/chat/:username" element={<Chat />} />
         </Route>

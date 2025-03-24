@@ -17,6 +17,7 @@ function useFetchProfile() {
         setUserData(response.data);
         console.log("User Data:", response.data);
       } catch (error) {
+        setUserData(null)
         console.error("Unauthorized request", error.response?.data);
       }
     };
