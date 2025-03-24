@@ -1,0 +1,10 @@
+.register-container {
+    background-color: #f8f9fa; /* Light gray background */
+    max-height: 100dvh;
+  }
+  
+  .register-box {
+    width: 350px;
+    background: white;
+  }
+  

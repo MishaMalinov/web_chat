@@ -1,0 +1,9 @@
+.login-container {
+    background-color: #f8f9fa;
+    max-height: 100dvh;
+}
+
+.login-box {
+    width: 350px;
+    background: white;
+}

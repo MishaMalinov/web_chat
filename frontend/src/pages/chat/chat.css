@@ -1,0 +1,228 @@
+/* General Layout */
+.chat-page {
+  /* height: 100svh; */
+  max-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  
+  /* Header Styling */
+  .header {
+    background-color: #f8f9fa;
+    height: 60px;
+    flex-shrink: 0;
+  }
+
+  /* Profile Button as Text */
+  .profile-link {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    text-decoration: none;
+    transition: color 0.2s ease-in-out;
+  }
+
+  /* Hover Effect */
+  .profile-link:hover {
+    color: #007bff;
+  }
+
+  .profile-link svg {
+    transition: transform 0.2s ease-in-out;
+  }
+
+  .profile-link:hover svg {
+    transform: scale(1.1);
+  }
+
+  .chat-container {
+    display: flex;
+    height: calc(100svh - 60px);
+    position: relative;
+  }
+  .user-info-link{
+    max-width: 200px;
+    img, svg{
+      flex-shrink: 0;
+    }
+    span{
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+
+  /* Sidebar Styles */
+  .sidebar {
+    flex-shrink: 0;
+    width: 100%;
+    background-color: #ffffff;
+    height: 100%;
+    transition: transform 0.3s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    
+  }
+
+  /* Sidebar Hidden (for Mobile) */
+  .hide-sidebar {
+    transform: translateX(-100%);
+    position: absolute;
+    z-index: 1000;
+  }
+
+  /* Sidebar Visible */
+  .show-sidebar {
+    transform: translateX(0);
+    position: absolute;
+    z-index: 1000;
+  }
+  .list-group{
+    flex-grow: 1; /* Allow user list to take available space */
+    overflow-y: auto; /* Enable scrolling */
+    overflow-x: clip;
+    &::-webkit-scrollbar{
+      display: none;
+    }
+
+    scrollbar-width: none;
+  }
+  .list-group-item{
+    transition-duration: .2s;
+    box-shadow: 0px 0px 0px 10px rgba(0, 0, 0, 0);
+    z-index: 0;
+    cursor: pointer;
+    &:hover{
+      transform: scale(1.02);
+      box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.164);
+      z-index: 1;
+    }
+    svg{
+      flex-shrink: 0;
+    }
+    span{
+      white-space: nowrap;      /* Prevent text from wrapping */
+      overflow: hidden;         /* Hide overflowing text */
+      text-overflow: ellipsis;  /* Show '...' when text is cut off */
+    }
+  }
+
+  /* Chat Window */
+  .chat-window {
+    flex-grow: 1;
+    background-color: #f1f1f1;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Messages */
+  .messages {
+    flex-grow: 1;
+    padding: 25px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    scrollbar-width: 8px;
+    /* Scrollbar Track */
+    &::-webkit-scrollbar {
+      width: 8px; /* Width of the scrollbar */
+    }
+
+    /* Scrollbar Handle */
+    &::-webkit-scrollbar-thumb {
+      background: #007bff; /* Scrollbar color */
+      border-radius: 4px;
+    }
+
+    /* Scrollbar Handle on Hover */
+    &::-webkit-scrollbar-thumb:hover {
+      background: #0056b3;
+    }
+
+    /* Scrollbar Track Background */
+    &::-webkit-scrollbar-track {
+      background: #0057b33d;
+      border-radius: 4px;
+    }
+  }
+
+  .message {
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    max-width: 60%;
+    background-color: #007bff;
+    color: white;
+    word-break: break-word;
+  }
+
+  .sent {
+    align-self: flex-end;
+  }
+
+  .received {
+    align-self: flex-start;
+  }
+
+  .input-box {
+    padding: 10px;
+    background: white;
+    display: flex;
+  }
+
+  /* Toggle Button (Mobile) */
+  .toggle-sidebar {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 1100;
+    border: none;
+    background: none;
+  }
+
+  .resize-handle {
+    display: none; /* Disable resizing on mobile */
+  }
+
+  @media (min-width: 768px) {
+
+    /* Show Sidebar by Default on Larger Screens */
+    .sidebar {
+      background-color: #ffffff;
+      /* overflow-y: auto; */
+      position: relative;
+      transition: none;
+      height: 100%;
+    }
+    
+    /* Resize Handle */
+    .resize-handle {
+      width: 5px;
+      height: 100%;
+      background-color: #ccc;
+      display: block;
+      cursor: ew-resize;
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+    
+    .resize-handle:hover {
+      background-color: #888;
+    }
+
+    .toggle-sidebar {
+      display: none;
+    }
+
+    .header {
+      padding-left: 1rem !important;
+    }
+  }
+
+}
