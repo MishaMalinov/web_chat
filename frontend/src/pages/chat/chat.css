@@ -11,6 +11,7 @@
     background-color: #f8f9fa;
     height: 60px;
     flex-shrink: 0;
+    
   }
 
   /* Profile Button as Text */
@@ -23,8 +24,15 @@
     cursor: pointer;
     text-decoration: none;
     transition: color 0.2s ease-in-out;
-  }
 
+  }
+  .avatar-img{
+    object-fit: cover;
+    height: 50px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    margin-right: 10px;
+  }
   /* Hover Effect */
   .profile-link:hover {
     color: #007bff;

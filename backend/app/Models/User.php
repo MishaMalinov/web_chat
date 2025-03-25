@@ -7,11 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, HasApiTokens;
+    use HasFactory, Notifiable, HasApiTokens, InteractsWithMedia;
 
     /**
      * The attributes that are mass assignable.
@@ -23,6 +25,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'bio'
     ];
 
     /**
@@ -35,6 +38,7 @@ class User extends Authenticatable
         'remember_token',
     ];
 
+    protected $appends = ['avatar'];
     /**
      * Get the attributes that should be cast.
      *
@@ -46,5 +50,10 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getAvatarAttribute()
+    {
+        return $this->getFirstMediaUrl('avatar') ?? null;
     }
 }

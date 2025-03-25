@@ -3,7 +3,7 @@ import { FaUserCircle, FaSearch } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 
 
-const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, user, onSearchClick }) => {
+const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userData, onSearchClick }) => {
   const [search, setSearch] = useState("");
   const [sidebarWidth, setSidebarWidth] = useState(window.innerWidth < 768 ? "100%" : 250); // Default width
   const sidebarRef = useRef(null);
@@ -110,8 +110,8 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, user,
     >
       <div className="d-flex align-items-center mb-3">
         <span className="profile-link d-md-none d-flex" onClick={onProfileClick}>
-          <FaUserCircle size={40} className="me-2" />
-          <span>{user.name}</span>
+          {userData && userData.avatar ? (<img src={userData.avatar} alt="Avatar" className="avatar-img"/>):(<FaUserCircle size={40} className="me-2" />)}
+          <span className="truncated-text">{userData.name??userData.username}</span>
         </span>
       </div>
 

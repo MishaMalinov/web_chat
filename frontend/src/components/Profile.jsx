@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import "../assets/profile.css";
@@ -10,13 +10,12 @@ const Profile = ({ show, handleClose,userData }) => {
     username: "JohnDoe",
     email: "johndoe@example.com"
   });
-
+  const [newBio, setNewBio] = useState(userData.bio??"")
   const [newAvatar, setNewAvatar] = useState(null);
-  const [newName, setNewName] = useState(userData.name||"");
-
+  const [newName, setNewName] = useState(userData.name??"");
   const [newUsername, setNewUsername] = useState(userData.username);
   const [newEmail, setNewEmail] = useState(userData.email);
-
+  const avatarInputRef = useRef(null);
   // Handle Avatar Upload
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
@@ -30,14 +29,32 @@ const Profile = ({ show, handleClose,userData }) => {
   };
 
   // Handle Save Changes
-  const handleSave = () => {
-    setUser({
-      avatar: newAvatar || user.avatar,
-      username: newUsername,
-      email: newEmail
-    });
-    alert("Profile updated successfully!");
-    handleClose(); // Close modal after saving
+  const handleSave = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+  
+      formData.append("name", newName);
+      formData.append("username", newUsername);
+      formData.append("email", newEmail);
+      formData.append("bio", newBio);
+      if (avatarInputRef.current?.files[0]) {
+        formData.append("avatar", avatarInputRef.current.files[0]);
+      }
+  
+      await axios.post("http://127.0.0.1:8000/api/user-update", formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      alert("Profile updated successfully!");
+      window.location.reload();
+    } catch (error) {
+      console.error(error);
+      alert("Failed to update profile");
+    }
   };
 
   const handleLogout = ()=>{
@@ -52,12 +69,12 @@ const Profile = ({ show, handleClose,userData }) => {
       <Modal.Body className="profile-container">
         {/* Avatar Section */}
         <div className="avatar-section">
-          {newAvatar || user.avatar ? (
-            <img src={newAvatar || user.avatar} alt="Avatar" className="avatar-img" />
+          {newAvatar || userData.avatar ? (
+            <img src={newAvatar || userData.avatar} alt="Avatar" className="avatar-img" />
           ) : (
             <FaUserCircle size={100} className="avatar-icon" />
           )}
-          <input type="file" accept="image/*" onChange={handleAvatarChange} className="form-control mt-2" />
+          <input type="file" accept="image/*" onChange={handleAvatarChange} className="form-control mt-2" ref={avatarInputRef}/>
         </div>
 
         {/* Name Input */}
@@ -92,6 +109,17 @@ const Profile = ({ show, handleClose,userData }) => {
             value={newEmail}
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder="Enter your email"
+          />
+        </div>
+        {/* Bio Input */}
+        <div className="form-group mt-3">
+          <label>Bio</label>
+          <input
+            type="text"
+            className="form-control"
+            value={newBio}
+            onChange={(e) => setNewBio(e.target.value)}
+            placeholder="Enter your bio"
           />
         </div>
       </Modal.Body>

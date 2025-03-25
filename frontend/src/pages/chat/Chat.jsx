@@ -78,7 +78,7 @@ const Chat = ({userData}) => {
                   isOpen={isSidebarOpen} 
                   setIsOpen={setIsSidebarOpen}
                   onProfileClick={() => setShowProfileModal(true)} 
-                  user={currentUser} 
+                  userData={userData} 
                   onSearchClick={()=>setShowSearchModal(true)}
         />
         <ChatWindow selectedUser={selectedUser} />

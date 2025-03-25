@@ -5,3 +5,10 @@ body{
     /* height: 100dvh; */
     max-height: 100svh;
 }
+
+.truncated-text{
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 250px;
+}

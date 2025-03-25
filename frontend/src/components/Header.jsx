@@ -12,8 +12,9 @@ const Header = ({ userData, interlocutor, onProfileClick, onUserInfoClick,setSho
         {/* Left - My Profile */}
         <div className="d-flex align-items-center">
           <span className="profile-link d-none d-md-flex" onClick={onProfileClick}>
-            <FaUserCircle size={40} className="me-2" />
-            <span>{userData.name?userData.name:userData.username}</span>
+            {userData && userData.avatar ? (<img src={userData.avatar} alt="Avatar" className="avatar-img"/>):(<FaUserCircle size={40} className="me-2" />)}
+            
+            <span className="truncated-text" title={userData.name??userData.username}>{userData.name??userData.username}</span>
           </span>
         </div>
 
