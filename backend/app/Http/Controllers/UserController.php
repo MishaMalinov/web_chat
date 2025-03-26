@@ -18,7 +18,7 @@ class UserController extends Controller
 {
     public function getUser(Request $request): JsonResponse
     {
-        return response()->json(new UserResource($request->user()), 200);
+        return response()->json(UserResource::make($request->user()), 200);
     }
 
     public function register(Request $request): JsonResponse
@@ -75,7 +75,9 @@ class UserController extends Controller
 //            ->orWhere('email', 'LIKE', "%{$searchTerm}%")
             ->limit(10) // Limit results for efficiency
             ->get();
-
+        $users = $users->map(function ($user) {
+            return UserResource::make($user);
+        });
         return response()->json($users);
     }
     public function update(Request $request): JsonResponse
