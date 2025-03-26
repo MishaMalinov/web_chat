@@ -12,7 +12,7 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userD
   const touchEndX = useRef(null);
 
   const filteredUsers = users.filter(user =>
-    user.name.toLowerCase().includes(search.toLowerCase())
+    user.username.toLowerCase().includes(search.toLowerCase())
   )
   // Handle Mouse Down (Start Resizing)
   const handleMouseDown = (e) => {

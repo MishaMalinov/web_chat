@@ -33,5 +33,32 @@ class ChatController extends Controller
         return response()->json(['chat' => $chat], 201);
     }
 
+    public function getChats(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $chats = Chat::query()
+            ->where('user1_id', $user->id)
+            ->orWhere('user2_id', $user->id)
+            ->with(['user1', 'user2'])
+            ->get();
+
+        $chats = $chats->map(function ($chat) use ($user) {
+            $row = [];
+            $currentUser = $chat->user1;
+            if($chat->user1->id == $user->id){
+                $currentUser = $chat->user2;
+            }
+            $row['username'] = $currentUser->username;
+            $row['avatar'] = $currentUser->avatar??null ;
+            $row['name'] = $currentUser->name ?? $currentUser->username;
+            return $row;
+        });
+
+
+
+        return response()->json(['chats' => $chats], 200);
+    }
+
 
 }

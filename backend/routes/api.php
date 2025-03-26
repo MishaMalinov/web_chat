@@ -10,3 +10,4 @@ Route::middleware('auth:sanctum')->get('/user', [UserController::class, 'getUser
 Route::middleware('auth:sanctum')->get('/search-users', [UserController::class, 'search']);
 Route::middleware('auth:sanctum')->post('/user-update', [UserController::class, 'update']);
 Route::middleware('auth:sanctum')->post('/create-chat', [ChatController::class, 'createChat']);
+Route::middleware('auth:sanctum')->get('/get-chats', [ChatController::class, 'getChats']);

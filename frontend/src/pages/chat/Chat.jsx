@@ -11,11 +11,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 const Chat = ({userData}) => {
+  const token = localStorage.getItem("token");
   const { username } = useParams();// username is unique
   const currentUser = { id: 1, name: "Myself", username: "misha" };
   const [selectedUser, setSelectedUser] = useState(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar toggle state
-  const [users, setUsers] = useState([]);
+  const [chats, setChats] = useState([]);
   const [showProfileModal, setShowProfileModal] = useState(false); // Profile Modal State
   const [showUserInfoModal, setShowUserInfoModal] = useState(false); // Profile Modal State
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -42,19 +43,34 @@ const Chat = ({userData}) => {
         { id: 3, name: "Bob", username: "bob" },
         { id: 4, name: "Charlie", username: "charlieXCX" },
       ];
-      setUsers(usersList);
+      // setUsers(usersList);
+      try{
+        axios.get("http://127.0.0.1:8000/api/get-chats",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          }
+        ).then((res)=>{
+          console.log(res.data)
+          setChats(res.data.chats);
+        })
+        
+      }catch(e){
+        console.error(e)
+      }
     };
     
     fetchUsers();
   }, []);
 
-  // Wait for users to be set, then find the user
+  
   useEffect(() => {
-    if (users.length > 0) {
-      const foundUser = users.find((u) => u.username === username);
+    if (chats.length > 0) {
+      const foundUser = chats.find((u) => u.username === username);
       setSelectedUser(foundUser || null);
     }
-  }, [users, username]); // Runs when users or username change
+  }, [chats, username]);
 
 
   return (
@@ -73,7 +89,7 @@ const Chat = ({userData}) => {
       </button>
 
       <div className="d-flex chat-container">
-        <Sidebar  users={users} 
+        <Sidebar  users={chats} 
                   onSelectUser={selectUserHandler} 
                   isOpen={isSidebarOpen} 
                   setIsOpen={setIsSidebarOpen}
