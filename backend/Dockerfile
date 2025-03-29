@@ -36,7 +36,7 @@ COPY start.sh /var/www/start.sh
 RUN chmod +x /var/www/start.sh
 
 # Expose the default port for PHP-FPM
-EXPOSE 9000
+EXPOSE 8000
 
 # Start container by running Laravel setup and php-fpm
 CMD ["/var/www/start.sh"]
