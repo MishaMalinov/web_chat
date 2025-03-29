@@ -1,6 +1,4 @@
-// components/LoadingScreen.jsx
-import React from "react";
-import "./LoadingScreen.css"; // необов’язково для стилів
+import "./loadingscreen.css"; 
 
 const LoadingScreen = () => {
   return (
