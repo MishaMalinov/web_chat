@@ -25,7 +25,8 @@ COPY . .
 RUN composer install --optimize-autoloader --no-dev
 
 # Permissions
-RUN chown -R www-data:www-data /var/www \
+RUN mkdir -p /var/www/storage \
+    && chown -R www-data:www-data /var/www \
     && chmod -R 755 /var/www/storage
 
 # Expose port
