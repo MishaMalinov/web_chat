@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState,useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
-
+import config from '../cofing';
 const Search = ({ show, handleClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
@@ -16,7 +16,7 @@ const Search = ({ show, handleClose }) => {
   const fetchUsers = async () => {
 
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/search-users?query=${searchTerm}`, {
+      const response = await axios.get(`${config.apiUrl}/search-users?query=${searchTerm}`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -29,7 +29,7 @@ const Search = ({ show, handleClose }) => {
 
   const addChatHandler = async (username)=>{
     try {
-      const response = await axios.post(`http://127.0.0.1:8000/api/create-chat`,
+      const response = await axios.post(`${config.apiUrl}/create-chat`,
       {
         username:username
       },

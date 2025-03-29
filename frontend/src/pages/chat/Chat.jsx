@@ -9,7 +9,7 @@ import { FaBars } from "react-icons/fa"; // Importing an icon for toggle
 import './chat.css';
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
-
+import config from "../../cofing";
 const Chat = ({userData}) => {
   const token = localStorage.getItem("token");
   const { username } = useParams();// username is unique
@@ -45,7 +45,7 @@ const Chat = ({userData}) => {
       ];
       // setUsers(usersList);
       try{
-        axios.get("http://127.0.0.1:8000/api/get-chats",
+        axios.get(`${config.apiUrl}/get-chats`,
           {
             headers: {
               Authorization: `Bearer ${token}`

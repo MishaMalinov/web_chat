@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-
+import config from '../cofing';
 function useFetchProfile() {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -11,13 +11,13 @@ function useFetchProfile() {
     console.log(token)
     if (!token) {
       
-      setLoading(false); // <== завершити, якщо токена немає
+      setLoading(false); 
       return;
     }
 
     const fetchData = async () => {
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/user", {
+        const response = await axios.get(`${config.apiUrl}/user`, {
           headers: {
             Authorization: `Bearer ${token}`
           }

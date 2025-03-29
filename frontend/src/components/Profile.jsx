@@ -3,7 +3,7 @@ import { Modal, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import "../assets/profile.css";
 import axios from "axios";
-
+import config from '../cofing.js';
 const Profile = ({ show, handleClose,userData }) => {
   const [user, setUser] = useState({
     avatar: null,
@@ -42,7 +42,7 @@ const Profile = ({ show, handleClose,userData }) => {
         formData.append("avatar", avatarInputRef.current.files[0]);
       }
   
-      await axios.post("http://127.0.0.1:8000/api/user-update", formData, {
+      await axios.post(`${config.apiUrl}/user-update`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

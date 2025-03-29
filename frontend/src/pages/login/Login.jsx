@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './login.css'; // Custom styles
 import axios from "axios";
-
+import config from "../../cofing";
 const Login = () => {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
@@ -26,7 +26,7 @@ const Login = () => {
     // }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login", {
+      const response = await axios.post(`${config.apiUrl}/login`, {
         username: username,
         password: password
       });

@@ -3,7 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './register.css'; // Custom styles
-
+import config from "../../cofing";
 const Register = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState("");
@@ -31,7 +31,7 @@ const Register = () => {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/register", {
+      const response = await axios.post(`${config.apiUrl}/register`, {
         username: username,
         email: email,
         password: password,
