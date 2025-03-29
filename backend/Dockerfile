@@ -1,6 +1,9 @@
 # Use official PHP image with FPM
 FROM php:8.2-fpm
 
+# Set working directory
+WORKDIR /var/www
+
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     git \
@@ -12,25 +15,28 @@ RUN apt-get update && apt-get install -y \
     zip \
     nodejs \
     npm \
-    libpq-dev \  
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd pdo_pgsql  
+    libpq-dev \
+    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd pdo_pgsql
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copy project files
+# Copy application files
 COPY . .
 
 # Install PHP dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Permissions
-RUN mkdir -p /var/www/storage \
-    && chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage
+# Ensure needed directories exist
+RUN mkdir -p storage/app/public bootstrap/cache \
+    && chmod -R 755 storage bootstrap/cache
 
-# Expose port
+# Copy and allow start.sh to run
+COPY start.sh /var/www/start.sh
+RUN chmod +x /var/www/start.sh
+
+# Expose the default port for PHP-FPM
 EXPOSE 9000
 
-# Runtime entrypoint (Render Start Command will override this)
-CMD ["php-fpm"]
+# Start container by running Laravel setup and php-fpm
+CMD ["/var/www/start.sh"]
