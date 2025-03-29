@@ -41,7 +41,7 @@ RUN php artisan storage:link
 
 
 # Run database migrations
-# RUN php artisan migrate 
+RUN php artisan migrate 
 
 # Expose port for Laravel
 EXPOSE 8000
