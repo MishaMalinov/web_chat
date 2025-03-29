@@ -30,7 +30,7 @@ RUN mkdir -p /var/www/storage \
     && chmod -R 755 /var/www/storage
 
 # Expose port
-EXPOSE 8000
+EXPOSE 9000
 
 # Runtime entrypoint (Render Start Command will override this)
 CMD ["php-fpm"]
