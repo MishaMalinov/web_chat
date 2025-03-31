@@ -1,8 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const PrivateRoute = ({userData}) => {
-  console.log("private room")
-  console.log(userData)
+const PrivateRoute = () => {
+  const { userData } = useAuth();
   return userData ? <Outlet /> : <Navigate to="/login" />;
 };
 

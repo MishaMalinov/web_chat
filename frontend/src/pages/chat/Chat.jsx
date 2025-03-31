@@ -1,110 +1,114 @@
 import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
+import config from "../../cofing";
+
 import Header from "../../components/Header";
 import Sidebar from "../../components/Sidebar";
 import ChatWindow from "../../components/ChatWindow";
 import ProfileModal from "../../components/Profile";
 import Search from "../../components/Search";
 import UserInfo from "../../components/UserInfo";
-import { FaBars } from "react-icons/fa"; // Importing an icon for toggle
-import './chat.css';
-import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
-import config from "../../cofing";
-const Chat = ({userData}) => {
-  const token = localStorage.getItem("token");
-  const { username } = useParams();// username is unique
-  const currentUser = { id: 1, name: "Myself", username: "misha" };
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true); // Sidebar toggle state
-  const [chats, setChats] = useState([]);
-  const [showProfileModal, setShowProfileModal] = useState(false); // Profile Modal State
-  const [showUserInfoModal, setShowUserInfoModal] = useState(false); // Profile Modal State
-  const [showSearchModal, setShowSearchModal] = useState(false);
+import { FaBars } from "react-icons/fa"; 
 
+import "./chat.css";
+
+const Chat = () => {
+  const { userData } = useAuth();
+  const token = localStorage.getItem("token");
+
+  const { username } = useParams();
   const navigate = useNavigate();
 
-  const selectUserHandler = (e) => {
-    const username = e.username;
-    navigate(`/chat/${username}`);
+  const [chats, setChats] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null);
 
-    // Hide sidebar only on phones (screen width < 768px)
-    if (window.innerWidth < 768) {
-        setIsSidebarOpen(false);
-    }
-  };
-  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
+  // Modals
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showUserInfoModal, setShowUserInfoModal] = useState(false);
+  const [showSearchModal, setShowSearchModal] = useState(false);
+
+  // Fetch user's chat list
   useEffect(() => {
-    const fetchUsers = async () => {
-      // Simulate fetching users from the backend
-      const usersList = [
-        currentUser,
-        { id: 2, name: "Aliceeeeeeeeeeee", username: "alice" },
-        { id: 3, name: "Bob", username: "bob" },
-        { id: 4, name: "Charlie", username: "charlieXCX" },
-      ];
-      // setUsers(usersList);
-      try{
-        axios.get(`${config.apiUrl}/get-chats`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          }
-        ).then((res)=>{
-          console.log(res.data)
-          setChats(res.data.chats);
-        })
-        
-      }catch(e){
-        console.error(e)
+    const fetchChats = async () => {
+      try {
+        const res = await axios.get(`${config.apiUrl}/get-chats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setChats(res.data.chats || []);
+      } catch (e) {
+        console.error("Error fetching chats:", e);
       }
     };
-    
-    fetchUsers();
-  }, []);
+    fetchChats();
+  }, [token]);
 
-  
+  // Whenever chat list or username changes, update selected user
   useEffect(() => {
+    if (!username) return setSelectedUser(null);
     if (chats.length > 0) {
       const foundUser = chats.find((u) => u.username === username);
       setSelectedUser(foundUser || null);
     }
   }, [chats, username]);
 
+  // When user selects a chat from sidebar
+  const selectUserHandler = (chat) => {
+    navigate(`/chat/${chat.username}`);
+    if (window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   return (
     <div className="chat-page">
-      <Header userData={userData}
+      <Header
+        userData={userData}
         interlocutor={selectedUser}
         onProfileClick={() => setShowProfileModal(true)}
         onUserInfoClick={() => setShowUserInfoModal(true)}
         setShowSearchModal={() => setShowSearchModal(true)}
-
       />
 
-      {/* Sidebar Toggle Button (Visible on Small Screens) */}
-      <button className="toggle-sidebar btn btn-light d-md-none" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
+      {/* Sidebar Toggle (mobile) */}
+      <button
+        className="toggle-sidebar btn btn-light d-md-none"
+        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+      >
         <FaBars size={24} />
       </button>
 
       <div className="d-flex chat-container">
-        <Sidebar  users={chats} 
-                  onSelectUser={selectUserHandler} 
-                  isOpen={isSidebarOpen} 
-                  setIsOpen={setIsSidebarOpen}
-                  onProfileClick={() => setShowProfileModal(true)} 
-                  userData={userData} 
-                  onSearchClick={()=>setShowSearchModal(true)}
+        <Sidebar
+          users={chats}
+          onSelectUser={selectUserHandler}
+          isOpen={isSidebarOpen}
+          setIsOpen={setIsSidebarOpen}
+          onProfileClick={() => setShowProfileModal(true)}          
+          userData={userData}
+          onSearchClick={() => setShowSearchModal(true)}
         />
         <ChatWindow selectedUser={selectedUser} />
       </div>
 
       {/* Modals */}
-      <ProfileModal show={showProfileModal} handleClose={() => setShowProfileModal(false)} userData={userData} />
-      <UserInfo show={showUserInfoModal} handleClose={() => setShowUserInfoModal(false)} />
-      <Search show={showSearchModal} handleClose={() => setShowSearchModal(false)} />
-
+      <ProfileModal
+        show={showProfileModal}
+        handleClose={() => setShowProfileModal(false)}
+        userData={userData}
+      />
+      <UserInfo
+        show={showUserInfoModal}
+        handleClose={() => setShowUserInfoModal(false)}
+      />
+      <Search
+        show={showSearchModal}
+        handleClose={() => setShowSearchModal(false)}
+      />
     </div>
   );
 };
