@@ -135,7 +135,7 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userD
           if (user.username == userData.username) {
             return (
               <li
-                key={user.id}
+                key={user.username}
                 className="list-group-item d-flex align-items-center saved-messages"
                 onClick={() => onSelectUser(user)}
               >
@@ -146,7 +146,7 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userD
 
           return (
             <li
-              key={user.id}
+              key={user.username}
               className="list-group-item d-flex align-items-center"
               onClick={() => onSelectUser(user)}
             >
