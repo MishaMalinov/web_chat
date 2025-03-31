@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Modal, Button } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
 import config from '../cofing';
@@ -7,11 +7,6 @@ const Search = ({ show, handleClose }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [users, setUsers] = useState([]);
   const token = localStorage.getItem("token");
-
-  // Filter users based on search input
-  // const filteredUsers = users.filter((user) =>
-  //   user.name.toLowerCase().includes(searchTerm.toLowerCase())
-  // );
 
   const fetchUsers = async () => {
 
@@ -27,17 +22,19 @@ const Search = ({ show, handleClose }) => {
     }
   };
 
-  const addChatHandler = async (username)=>{
+  const addChatHandler = async (username) => {
     try {
-      const response = await axios.post(`${config.apiUrl}/create-chat`,
-      {
-        username:username
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      });
+      await axios.post(`${config.apiUrl}/create-chat`,
+        {
+          username: username
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }).then(()=>{
+          window.location.reload();
+        });
       
     } catch (error) {
       console.error("Error:", error);
@@ -62,8 +59,12 @@ const Search = ({ show, handleClose }) => {
           className="form-control mb-3"
           placeholder="Search users..."
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            const value = e.target.value.replace(/\s/g, ""); // removes all spaces
+            setSearchTerm(value);
+          }}
         />
+
 
         {/* User List */}
         <ul className="list-group">
@@ -71,10 +72,10 @@ const Search = ({ show, handleClose }) => {
             users.map((u) => (
               <li key={u.username} className="list-group-item d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center">
-                  <FaUserCircle size={30} className="me-2" />
+                  {u && u.avatar ? (<img src={u.avatar} alt="Avatar" className="avatar-img avatar-img-sm" />) : (<FaUserCircle size={35} className="me-2" />)}
                   <span>{u.username}</span>
                 </div>
-                <div className="btn btn-sm btn-primary" onClick={()=>addChatHandler(u.username)}>+</div>
+                <div className="btn btn-sm btn-primary" onClick={() => addChatHandler(u.username)}>+</div>
               </li>
             ))
           ) : (

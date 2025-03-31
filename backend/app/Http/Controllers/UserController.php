@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Chat;
 use App\Models\User;
 use App\Services\ChatService;
 use Illuminate\Auth\Events\Registered;
@@ -69,17 +70,30 @@ class UserController extends Controller
     public function search(Request $request): JsonResponse
     {
         $searchTerm = $request->query('query');
+        $currentUserId = $request->user()->id;
 
-        // Search users by username or email
-        $users = User::where('username', 'LIKE', "%{$searchTerm}%")
-//            ->orWhere('email', 'LIKE', "%{$searchTerm}%")
-            ->limit(10) // Limit results for efficiency
+        // Get IDs of users already in a chat with the current user
+        $chatUserIds = Chat::query()
+            ->where('user1_id', $currentUserId)
+            ->orWhere('user2_id', $currentUserId)
+            ->get()
+            ->flatMap(function ($chat) use ($currentUserId) {
+                return [$chat->user1_id, $chat->user2_id];
+            })
+            ->unique()
+            ->reject(fn ($id) => $id === $currentUserId);
+
+        // Search users, exclude self and existing chat users
+        $users = User::query()
+            ->where('username', 'LIKE', "%{$searchTerm}%")
+            ->where('id', '!=', $currentUserId)
+            ->whereNotIn('id', $chatUserIds)
+            ->limit(10)
             ->get();
-        $users = $users->map(function ($user) {
-            return UserResource::make($user);
-        });
-        return response()->json($users);
+
+        return response()->json(UserResource::collection($users));
     }
+
     public function update(Request $request): JsonResponse
     {
         $user = $request->user();
