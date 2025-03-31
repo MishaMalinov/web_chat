@@ -110,8 +110,8 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userD
     >
       <div className="d-flex align-items-center mb-3">
         <span className="profile-link d-md-none d-flex" onClick={onProfileClick}>
-          {userData && userData.avatar ? (<img src={userData.avatar} alt="Avatar" className="avatar-img"/>):(<FaUserCircle size={40} className="me-2" />)}
-          <span className="truncated-text">{userData.name??userData.username}</span>
+          {userData && userData.avatar ? (<img src={userData.avatar} alt="Avatar" className="avatar-img" />) : (<FaUserCircle size={40} className="me-2" />)}
+          <span className="truncated-text">{userData.name ?? userData.username}</span>
         </span>
       </div>
 
@@ -131,16 +131,31 @@ const Sidebar = ({ users, onSelectUser, isOpen, setIsOpen, onProfileClick, userD
 
       {/* User List */}
       <ul className="list-group">
-        {filteredUsers.map(user => (
-          <li
-            key={user.id}
-            className="list-group-item d-flex align-items-center"
-            onClick={() => onSelectUser(user)}
-          >
-            <FaUserCircle size={30} className="me-2" />
-            <span>{user.name}</span>
-          </li>
-        ))}
+        {filteredUsers.map(user => {
+          if (user.username == userData.username) {
+            return (
+              <li
+                key={user.id}
+                className="list-group-item d-flex align-items-center saved-messages"
+                onClick={() => onSelectUser(user)}
+              >
+                <span >Saved messages</span>
+              </li>
+            )
+          }
+
+          return (
+            <li
+              key={user.id}
+              className="list-group-item d-flex align-items-center"
+              onClick={() => onSelectUser(user)}
+            >
+              {user.avatar ? (<img src={user.avatar} alt="Avatar" className="avatar-img avatar-img-sm" />) : (<FaUserCircle size={35} className="me-2" />)}
+
+              <span>{user.name}</span>
+            </li>
+          )
+        })}
       </ul>
 
       {/* Resizable Handle */}

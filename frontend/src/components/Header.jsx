@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { FaUserCircle, FaSearch } from "react-icons/fa";
 import { Button } from "react-bootstrap";
 // import Search from "./Search";
@@ -25,7 +24,7 @@ const Header = ({ userData, interlocutor, onProfileClick, onUserInfoClick,setSho
 
         {/* Right - Interlocutor Profile */}
         <div className="d-flex align-items-center user-info-link" onClick={onUserInfoClick}>
-          {interlocutor && (
+          {interlocutor && interlocutor.username !== userData.username && (
             <>
               <FaUserCircle size={40} className="me-2" />
               <span>{interlocutor.name}</span>
