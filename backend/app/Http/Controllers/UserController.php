@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Services\ChatService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -35,12 +36,11 @@ class UserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-//        event(new Registered($user));
-
         $token = $user->createToken('auth_token')->plainTextToken;
-//        $token = $request->username;
-        return response()->json(['message' => 'User registered successfully', 'token' => $token], 201);
 
+        ChatService::createChat($user->id, $user->id);
+
+        return response()->json(['message' => 'User registered successfully', 'token' => $token], 201);
     }
 
     public function login(Request $request): JsonResponse
