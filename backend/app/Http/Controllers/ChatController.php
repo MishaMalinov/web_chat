@@ -22,11 +22,15 @@ class ChatController extends Controller
     {
         $user = $request->user();
 
-        $chats = Chat::query()
+        $chats = Chat::with(['user1', 'user2'])
             ->where('user1_id', $user->id)
             ->orWhere('user2_id', $user->id)
-            ->with(['user1', 'user2'])
             ->get();
+
+        $selfChat = $chats->firstWhere(fn($chat) => $chat->user1_id === $user->id && $chat->user2_id === $user->id);
+        if($selfChat) {
+            $chats = $chats->reject(fn($chat) => $selfChat && $chat->id === $selfChat->id)->prepend($selfChat);
+        }
 
         $chats = $chats->map(function ($chat) use ($user) {
             $row = [];
