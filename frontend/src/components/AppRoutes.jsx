@@ -31,7 +31,7 @@ const AppRoutes = () => {
                 {/* Private routes */}
                 <Route element={<PrivateRoute />}>
                     <Route path="/chat" element={<Chat />} />
-                    <Route path="/chat/:username" element={<Chat />} />
+                    <Route path="/chat/:chat_id" element={<Chat />} />
                 </Route>
 
                 {/* 404 catch-all */}

@@ -1,35 +1,65 @@
-import { useState,useEffect } from "react";
-// import '../styles/Chat.css';
+import { useAuth } from "../context/AuthContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
+import config from "../cofing";
 
-const ChatWindow = ({ selectedUser }) => {
+const ChatWindow = ({ chat_id }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-
-  const sendMessage = () => {
-    if (input.trim() === "") return;
-    setMessages([...messages, { text: input, sender: "me" }]);
-    setInput("");
-  };
+  const { userData } = useAuth();
+  const token = localStorage.getItem("token");
 
   useEffect(() => {
-    setMessages([
-      {text:'test1',sender: selectedUser},
-      {text:'test2',sender: "me"},
-      {text:'test3',sender: selectedUser},
-      {text:'test4',sender: "me"},
-      {text:'test5',sender: selectedUser},
-      {text:'test6',sender: "me"},
-      {text:'test7',sender: selectedUser},
+    if (!chat_id) {
+      setMessages([]);
+      return;
+    }
 
-    ])
-    
-  }, []);
+    const fetchChatContent = async () => {
+      try {
+        const response = await axios.get(`${config.apiUrl}/chat-content?chat_id=${chat_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setMessages(response.data); 
+      } catch (error) {
+        console.error("Failed to load messages:", error);
+      }
+    };
+
+    fetchChatContent();
+  }, [chat_id]);
+
+  const sendMessageHandler = async () => {
+    if (input.trim() === "") return;
+
+    try {
+      const response = await axios.post(`${config.apiUrl}/messages`, {
+        chat_id: chat_id,
+        message: input,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setMessages((prev) => [...prev, response.data]);
+      setInput("");
+    } catch (error) {
+      console.error("Failed to send message:", error);
+    }
+  };
+
   return (
     <div className="chat-window">
       <div className="messages">
         {messages.map((msg, index) => (
-          <div key={index} className={`message ${msg.sender === "me" ? "sent" : "received"}`}>
-            {msg.text}
+          <div
+            key={index}
+            className={`message ${msg.sender.username === userData.username ? "sent" : "received"}`}
+          >
+            {msg.content || msg.text}
           </div>
         ))}
       </div>
@@ -40,9 +70,10 @@ const ChatWindow = ({ selectedUser }) => {
           placeholder="Type a message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e)=>{if(e.key === "Enter")sendMessage()}}
         />
-        <button className="btn btn-primary ms-2" onClick={sendMessage} >Send</button>
+        <button className="btn btn-primary ms-2" onClick={sendMessageHandler}>
+          Send
+        </button>
       </div>
     </div>
   );

@@ -38,6 +38,7 @@ class ChatController extends Controller
             if($chat->user1->id == $user->id){
                 $currentUser = $chat->user2;
             }
+            $row['chat_id'] = $chat->id;
             $row['username'] = $currentUser->username;
             $row['avatar'] = $currentUser->avatar??null ;
             $row['name'] = $currentUser->name ?? $currentUser->username;
@@ -49,5 +50,36 @@ class ChatController extends Controller
         return response()->json(['chats' => $chats], 200);
     }
 
+
+    public function getChatContent(Request $request): JsonResponse
+    {
+        $chatId = $request->input('chat_id');
+        $user = $request->user();
+
+        // Get the chat with related users and messages
+        $chat = Chat::with(['user1', 'user2', 'messages'])
+            ->where('id', $chatId)
+            ->firstOrFail();
+
+        if (!in_array($user->id, [$chat->user1_id, $chat->user2_id])) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        // Map messages to desired format
+        $messages = $chat->messages
+            ->sortBy('created_at')
+            ->map(function ($message) {
+                return [
+                    'sender' => [
+                        'username' => $message->sender->username,
+                    ],
+                    'text' => $message->content,
+                    'date' => $message->created_at->toDateTimeString(),
+                ];
+            })
+            ->values();
+
+        return response()->json($messages);
+    }
 
 }

@@ -19,7 +19,7 @@ const Chat = () => {
   const { userData } = useAuth();
   const token = localStorage.getItem("token");
 
-  const { username } = useParams();
+  const { chat_id } = useParams();
   const navigate = useNavigate();
 
   const [chats, setChats] = useState([]);
@@ -47,18 +47,18 @@ const Chat = () => {
     fetchChats();
   }, [token]);
 
-  // Whenever chat list or username changes, update selected user
+  // Whenever chat list or chat_id changes, update selected user
   useEffect(() => {
-    if (!username) return setSelectedUser(null);
+    if (!chat_id) return setSelectedUser(null);
     if (chats.length > 0) {
-      const foundUser = chats.find((u) => u.username === username);
+      const foundUser = chats.find((u) => u.chat_id.toString() === chat_id);
       setSelectedUser(foundUser || null);
     }
-  }, [chats, username]);
+  }, [chats, chat_id]);
 
   // When user selects a chat from sidebar
   const selectUserHandler = (chat) => {
-    navigate(`/chat/${chat.username}`);
+    navigate(`/chat/${chat.chat_id}`);
     if (window.innerWidth < 768) {
       setIsSidebarOpen(false);
     }
@@ -92,7 +92,7 @@ const Chat = () => {
           userData={userData}
           onSearchClick={() => setShowSearchModal(true)}
         />
-        <ChatWindow selectedUser={selectedUser} />
+        <ChatWindow chat_id={chat_id} />
       </div>
 
       {/* Modals */}
