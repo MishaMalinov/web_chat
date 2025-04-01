@@ -5,11 +5,6 @@ import "../assets/profile.css";
 import axios from "axios";
 import config from '../cofing.js';
 const Profile = ({ show, handleClose,userData }) => {
-  const [user, setUser] = useState({
-    avatar: null,
-    username: "JohnDoe",
-    email: "johndoe@example.com"
-  });
   const [newBio, setNewBio] = useState(userData.bio??"")
   const [newAvatar, setNewAvatar] = useState(null);
   const [newName, setNewName] = useState(userData.name??"");
@@ -101,7 +96,7 @@ const Profile = ({ show, handleClose,userData }) => {
         </div>
 
         {/* Email Input */}
-        <div className="form-group mt-3">
+        {/* <div className="form-group mt-3">
           <label>Email</label>
           <input
             type="email"
@@ -110,7 +105,7 @@ const Profile = ({ show, handleClose,userData }) => {
             onChange={(e) => setNewEmail(e.target.value)}
             placeholder="Enter your email"
           />
-        </div>
+        </div> */}
         {/* Bio Input */}
         <div className="form-group mt-3">
           <label>Bio</label>
