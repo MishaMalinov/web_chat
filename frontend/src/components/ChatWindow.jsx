@@ -1,5 +1,5 @@
 import { useAuth } from "../context/AuthContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
 import axios from "axios";
 import config from "../cofing";
 
@@ -9,6 +9,7 @@ const ChatWindow = ({ chat_id }) => {
   const { userData } = useAuth();
   const token = localStorage.getItem("token");
 
+  const socketRef = useRef(null);
   useEffect(() => {
     if (!chat_id) {
       setMessages([]);
@@ -30,12 +31,40 @@ const ChatWindow = ({ chat_id }) => {
 
     fetchChatContent();
   }, [chat_id]);
+  useEffect(() => {
+    // Connect to WebSocket
+    if (socketRef.current) {
+      socketRef.current.close();
+    }
+    const socket = new WebSocket("ws://localhost:3002");
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      console.log("WebSocket connected");
+      // Subscribe to current chat_id
+      socket.send(JSON.stringify({ action: "subscribe", chat_id }));
+    };
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      setMessages((prev) => [...prev, message]);
+    };
+
+    socket.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [chat_id]);
+
 
   const sendMessageHandler = async () => {
     if (input.trim() === "") return;
 
     try {
-      const response = await axios.post(`${config.apiUrl}/messages`, {
+      await axios.post(`${config.apiUrl}/messages`, {
         chat_id: chat_id,
         message: input,
       }, {
@@ -43,8 +72,6 @@ const ChatWindow = ({ chat_id }) => {
           Authorization: `Bearer ${token}`,
         },
       });
-
-      setMessages((prev) => [...prev, response.data]);
       setInput("");
     } catch (error) {
       console.error("Failed to send message:", error);

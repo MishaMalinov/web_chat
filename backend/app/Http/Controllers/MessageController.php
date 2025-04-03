@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Message;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class MessageController extends Controller
 {
@@ -23,6 +24,16 @@ class MessageController extends Controller
             'content' => $request->message,
             'read_at' => $request->read_at,
         ]);
+
+        Http::post('http://localhost:3001/broadcast', [
+            'chat_id' => $message->chat_id,
+            'sender' => [
+                'username' => $message->sender->username,
+            ],
+            'text' => $message->content,
+            'date' => $message->created_at->toDateTimeString(),
+        ]);
+
 
         return response()->json([
             'sender' => [
