@@ -36,7 +36,7 @@ const ChatWindow = ({ chat_id }) => {
     if (socketRef.current) {
       socketRef.current.close();
     }
-    const socket = new WebSocket("ws://localhost:3002");
+    const socket = new WebSocket(config.wssUrl);
     socketRef.current = socket;
 
     socket.onopen = () => {

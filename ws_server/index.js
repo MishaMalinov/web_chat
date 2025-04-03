@@ -1,11 +1,14 @@
 const express = require("express");
+const http = require("http");
 const WebSocket = require("ws");
-const cors = require("cors");
 const bodyParser = require("body-parser");
+const cors = require("cors");
 
 const app = express();
-const PORT = 3001; // HTTP API
-const WS_PORT = 3002; // WebSocket server
+const server = http.createServer(app);
+const wss = new WebSocket.Server({ server });
+
+const clients = new Map(); // ws => chat_id
 
 app.use(cors({
     origin: '*', // allow all origins
@@ -13,23 +16,33 @@ app.use(cors({
 
 app.use(bodyParser.json());
 
-const wss = new WebSocket.Server({ port: WS_PORT });
+// Broadcast API (from Laravel)
+app.post("/broadcast", (req, res) => {
+    const message = req.body;
+    console.log("Broadcasting message:", message);
 
-const clients = new Map(); // WebSocket => chat_id
+    clients.forEach((chatId, ws) => {
+        if (ws.readyState === WebSocket.OPEN && chatId === message.chat_id) {
+            ws.send(JSON.stringify(message));
+        }
+    });
 
+    res.json({ status: "ok" });
+});
+
+// Handle WebSocket connections
 wss.on("connection", (ws) => {
     console.log("Client connected");
 
-    // Set chat_id when client subscribes
     ws.on("message", (msg) => {
         try {
             const data = JSON.parse(msg);
             if (data.action === "subscribe" && data.chat_id) {
                 clients.set(ws, data.chat_id);
-                console.log(`Client subscribed to chat_id: ${data.chat_id}`);
+                console.log(`Subscribed to chat ${data.chat_id}`);
             }
-        } catch (err) {
-            console.error("Invalid WS message:", msg);
+        } catch (e) {
+            console.error("Invalid WS message");
         }
     });
 
@@ -39,25 +52,8 @@ wss.on("connection", (ws) => {
     });
 });
 
-// Receive HTTP request from Laravel and broadcast to relevant clients
-app.post("/broadcast", (req, res) => {
-    const message = req.body;
-    console.log("Incoming message from Laravel:", message);
-
-    // Broadcast only to sockets subscribed to this chat
-    clients.forEach((subscribedChatId, client) => {
-        if (
-            client.readyState === WebSocket.OPEN &&
-            subscribedChatId === message.chat_id
-        ) {
-            client.send(JSON.stringify(message));
-        }
-    });
-
-    res.json({ status: "Message broadcasted" });
-});
-
-app.listen(PORT, () => {
-    console.log(`HTTP server on http://localhost:${PORT}`);
-    console.log(`WebSocket server on ws://localhost:${WS_PORT}`);
+// Listen on assigned Render port
+const PORT = process.env.PORT || 10000;
+server.listen(PORT, () => {
+    console.log(`WebSocket + HTTP server running on port ${PORT}`);
 });
