@@ -8,7 +8,7 @@ const ChatWindow = ({ chat_id }) => {
   const [input, setInput] = useState("");
   const { userData } = useAuth();
   const token = localStorage.getItem("token");
-
+  const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
   useEffect(() => {
     if (!chat_id) {
@@ -58,7 +58,10 @@ const ChatWindow = ({ chat_id }) => {
       socket.close();
     };
   }, [chat_id]);
-
+  // Scroll when messages change
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
 
   const sendMessageHandler = async () => {
     if (input.trim() === "") return;
@@ -77,7 +80,10 @@ const ChatWindow = ({ chat_id }) => {
       console.error("Failed to send message:", error);
     }
   };
-
+  // Auto-scroll function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
   return (
     <div className="chat-window">
       <div className="messages">
@@ -89,6 +95,7 @@ const ChatWindow = ({ chat_id }) => {
             {msg.content || msg.text}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <div className="input-box d-flex">
         <input
