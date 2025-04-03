@@ -25,7 +25,7 @@ class MessageController extends Controller
             'read_at' => $request->read_at,
         ]);
 
-        Http::post(env("WSS_URL")?? "http://localhost:10000", [
+        Http::post(env("WSS_URL")."/broadcast" ?? "http://localhost:10000/broadcast", [
             'chat_id' => $message->chat_id,
             'sender' => [
                 'username' => $message->sender->username,
