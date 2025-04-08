@@ -12,6 +12,7 @@ class MessageController extends Controller
     {
         $request->validate([
             'chat_id' => 'required|integer|exists:chats,id',
+            'temp_id' => 'required',
             'attachment_id' => 'nullable|integer|exists:attachments,id',
             'message' => 'nullable|string',
             'read_at' => 'nullable|date',
@@ -25,14 +26,17 @@ class MessageController extends Controller
             'read_at' => $request->read_at,
         ]);
 
-        Http::post(env("WSS_URL")."/broadcast" ?? "http://localhost:10000/broadcast", [
-            'chat_id' => $message->chat_id,
-            'sender' => [
-                'username' => $message->sender->username,
-            ],
-            'text' => $message->content,
-            'date' => $message->created_at->toDateTimeString(),
-        ]);
+        try{
+            Http::post(env("WSS_URL") ? env("WSS_URL")."/broadcast" : "http://localhost:10000/broadcast", [
+                'chat_id' => $message->chat_id,
+                'sender' => [
+                    'username' => $message->sender->username,
+                ],
+                'text' => $message->content,
+                'date' => $message->created_at->toDateTimeString(),
+                'temp_id' => $request->input('temp_id'),
+            ]);
+        }catch (\Exception $e){}
 
 
         return response()->json([

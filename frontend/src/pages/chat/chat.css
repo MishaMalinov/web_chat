@@ -175,7 +175,14 @@
     color: white;
     word-break: break-word;
   }
-
+  .pending-dot {
+    height: 5px;
+    width: 5px;
+    display: block;
+    border-radius: 50%;
+    background-color: #fff;
+  }
+  
   .sent {
     align-self: flex-end;
   }

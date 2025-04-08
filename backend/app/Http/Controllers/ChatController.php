@@ -42,6 +42,7 @@ class ChatController extends Controller
             $row['username'] = $currentUser->username;
             $row['avatar'] = $currentUser->avatar??null ;
             $row['name'] = $currentUser->name ?? $currentUser->username;
+            $row['bio'] = $currentUser->bio ?? null;
             return $row;
         });
 

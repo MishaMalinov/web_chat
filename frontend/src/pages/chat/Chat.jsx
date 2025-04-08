@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../context/AuthContext";
+import { useChat } from "../../context/ChatContext";
+
 import axios from "axios";
 import config from "../../cofing";
 
@@ -23,7 +25,8 @@ const Chat = () => {
   const navigate = useNavigate();
 
   const [chats, setChats] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
+  
+  const { setSelectedUser} = useChat();
 
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
@@ -52,6 +55,7 @@ const Chat = () => {
     if (!chat_id) return setSelectedUser(null);
     if (chats.length > 0) {
       const foundUser = chats.find((u) => u.chat_id.toString() === chat_id);
+      console.log(foundUser)
       setSelectedUser(foundUser || null);
     }
   }, [chats, chat_id]);
@@ -68,7 +72,6 @@ const Chat = () => {
     <div className="chat-page">
       <Header
         userData={userData}
-        interlocutor={selectedUser}
         onProfileClick={() => setShowProfileModal(true)}
         onUserInfoClick={() => setShowUserInfoModal(true)}
         setShowSearchModal={() => setShowSearchModal(true)}
