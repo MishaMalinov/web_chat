@@ -111,7 +111,7 @@ class UserController extends Controller
 
         if ($request->hasFile('avatar')) {
             $user->clearMediaCollection('avatar');
-            $user->addMedia($request->file('avatar'))->toMediaCollection('avatar', 'avatars');
+            $user->addMedia($request->file('avatar'))->toMediaCollection('avatar');
         }
 
         $user->save();

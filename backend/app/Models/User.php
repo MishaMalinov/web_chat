@@ -56,4 +56,10 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->getFirstMediaUrl('avatar') ?? null;
     }
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('avatar')
+            ->useDisk('gcs');
+    }
 }
