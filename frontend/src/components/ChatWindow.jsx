@@ -4,6 +4,7 @@ import axios from "axios";
 import config from "../cofing";
 import { v4 as uuidv4 } from "uuid"; 
 
+const CACHE_LIMIT = 50; //  how many to keep
 const ChatWindow = ({ chat_id }) => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -13,139 +14,125 @@ const ChatWindow = ({ chat_id }) => {
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
 
-  // Auto-scroll
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  // helper – cache key per‑chat
+  const cacheKey = `chat_cache_${chat_id}`;
 
-  // Fetch existing messages
+  // ----------------- load cache first -----------------
   useEffect(() => {
-    if (!chat_id) {
-      setMessages([]);
-      return;
-    }
+    if (!chat_id) return setMessages([]);
+
+    const cached = localStorage.getItem(cacheKey);     
+    if (cached) setMessages(JSON.parse(cached));       // show cached messages ASAP
+  }, [chat_id]);                                       // separate effect (only load cache)
+
+  // ----------------- fetch fresh from API -----------------
+  useEffect(() => {
+    if (!chat_id) return;
 
     const fetchChatContent = async () => {
       try {
-        const response = await axios.get(`${config.apiUrl}/chat-content?chat_id=${chat_id}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMessages(response.data);
-      } catch (error) {
-        console.error("Failed to load messages:", error);
+        const { data } = await axios.get(
+          `${config.apiUrl}/chat-content?chat_id=${chat_id}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setMessages(data);                             // replaces cache once fresh arrives
+      } catch (err) {
+        console.error("Failed to load messages:", err);
       }
     };
-
     fetchChatContent();
   }, [chat_id]);
 
-  // WebSocket
+  // ----------------- save cache whenever messages change -----------------
   useEffect(() => {
-    if (socketRef.current) {
-      socketRef.current.close();
-    }
+    if (!chat_id) return;
+    const lastMessages = messages.slice(-CACHE_LIMIT);
+    localStorage.setItem(cacheKey, JSON.stringify(lastMessages));
+  }, [messages, chat_id]);                             
+
+  // ----------------- WebSocket -----------------
+  useEffect(() => {
+    if (!chat_id) return;
+    if (socketRef.current) socketRef.current.close();
+
     const socket = new WebSocket(config.wssUrl);
     socketRef.current = socket;
 
-    socket.onopen = () => {
-      console.log("WebSocket connected");
-      socket.send(JSON.stringify({ action: "subscribe", chat_id }));
-    };
+    socket.onopen = () => socket.send(JSON.stringify({ action: "subscribe", chat_id }));
 
-    socket.onmessage = (event) => {
-      const message = JSON.parse(event.data);
-      console.log(message)
-      // If the message was already shown locally (pending), replace it
+    socket.onmessage = (e) => {
+      const message = JSON.parse(e.data);
+
       setMessages((prev) => {
-        // Replace pending message if temp_id matches
         if (message.temp_id && message.sender?.username === userData.username) {
           return prev.map((m) =>
             m.temp_id === message.temp_id ? { ...message, pending: false } : m
           );
         }
-
-        // For received messages (from others), just add
         if (message.sender?.username !== userData.username) {
           return [...prev, { ...message, pending: false }];
         }
-
-        // Otherwise, don't change anything
         return prev;
       });
-    };
-
-    socket.onclose = () => {
-      console.log("WebSocket disconnected");
     };
 
     return () => socket.close();
   }, [chat_id]);
 
+  // ----------------- auto‑scroll -----------------
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Send message handler
+  // ----------------- send -----------------
   const sendMessageHandler = async () => {
-    if (input.trim() === "") return;
+    if (!input.trim()) return;
 
     const temp_id = uuidv4();
-    const localMessage = {
-      temp_id,
-      content: input,
-      sender: { username: userData.username },
-      pending: true,
-    };
-
-    setMessages((prev) => [...prev, localMessage]);
+    setMessages((prev) => [
+      ...prev,
+      { temp_id, text: input, sender: { username: userData.username }, pending: true },
+    ]);
     setInput("");
 
     try {
       await axios.post(
         `${config.apiUrl}/messages`,
-        {
-          chat_id: chat_id,
-          message: input,
-          temp_id: temp_id, 
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+        { chat_id, message: input, temp_id },
+        { headers: { Authorization: `Bearer ${token}` } }
       );
-    } catch (error) {
-      console.error("Failed to send message:", error);
-      // Optionally, show error state
+    } catch (err) {
+      console.error("Failed to send message:", err);
     }
   };
 
   return (
     <div className="chat-window">
       <div className="messages">
-        {messages.map((msg, index) => (
+        {messages.map((msg, i) => (
           <div
-            key={msg.id || msg.temp_id || index}
-            className={`message ${msg.sender.username === userData.username ? "sent" : "received"}`}
+            key={msg.id || msg.temp_id || i}
+            className={`message ${
+              msg.sender.username === userData.username ? "sent" : "received"
+            }`}
           >
             <div className="d-flex align-items-center">
-              <span>{msg.content || msg.text}</span>
-              {msg.pending && (
-                <span className="ms-2 pending-dot" title="Sending..."></span>
-              )}
+              <span style={{ whiteSpace: "pre-wrap" }}>{msg.text}</span>
+              {msg.pending && <span className="ms-2 pending-dot" title="Sending…" />}
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
+
       <div className="input-box d-flex">
-        <input
-          type="text"
+        <textarea
           className="form-control"
-          placeholder="Type a message..."
+          placeholder="Type a message…"
           value={input}
+          rows={1}
+          maxLength={2000}
           onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && sendMessageHandler()}
         />
         <button className="btn btn-primary ms-2" onClick={sendMessageHandler}>
           Send
