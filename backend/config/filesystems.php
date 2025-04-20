@@ -80,6 +80,18 @@ return [
             'metadata' => ['cacheControl' => 'public,max-age=86400'],
         ],
 
+        'gcs_media' => [
+            'driver' => 'gcs',
+            'key_file' => json_decode(base64_decode(env('GOOGLE_CLOUD_KEY_JSON_BASE64')), true),
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'bucket' => env('GOOGLE_CLOUD_STORAGE_BUCKET'),
+            'path_prefix' => env('GOOGLE_CLOUD_STORAGE_PATH_PREFIX_MEDIA'),
+            'storage_api_uri' => env('GOOGLE_CLOUD_STORAGE_API_URI', null),
+            'api_endpoint' => env('GOOGLE_CLOUD_STORAGE_API_ENDPOINT', null),
+            'visibility' => 'public',
+            'visibility_handler' => \League\Flysystem\GoogleCloudStorage\UniformBucketLevelAccessVisibility::class,
+            'metadata' => ['cacheControl' => 'public,max-age=86400'],
+        ],
 
     ],
 
