@@ -3,7 +3,8 @@ import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import config from "../cofing";
 import { v4 as uuidv4 } from "uuid"; 
-
+import { FiSend, FiPaperclip } from "react-icons/fi";
+import { motion , AnimatePresence } from "framer-motion";
 const CACHE_LIMIT = 50; //  how many to keep
 const ChatWindow = ({ chat_id }) => {
   const [messages, setMessages] = useState([]);
@@ -125,18 +126,43 @@ const ChatWindow = ({ chat_id }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="input-box d-flex">
+      <div className="input-box d-flex ">
         <textarea
-          className="form-control"
+          className="form-control flex-grow-1"
           placeholder="Type a message…"
           value={input}
           rows={1}
           maxLength={2000}
           onChange={(e) => setInput(e.target.value)}
         />
-        <button className="btn btn-primary ms-2" onClick={sendMessageHandler}>
-          Send
-        </button>
+        <AnimatePresence initial={false} mode="wait">
+          {!input ? (
+            <motion.button
+              key="attach"
+              className="btn btn-primary ms-2"
+              initial={{ y: -20, opacity: 0 }}        
+              animate={{ y: 0,  opacity: 1 }}
+              exit={{    y: -20, opacity: 0 }}      
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              title="Attach file"
+            >
+              <FiPaperclip size={22} />
+            </motion.button>
+          ) : (
+            <motion.button
+              key="send"
+              className="btn btn-primary ms-2"
+              onClick={sendMessageHandler}
+              initial={{ y: 20, opacity: 0 }}       
+              animate={{ y: 0,  opacity: 1 }}
+              exit={{    y: 20, opacity: 0 }}      
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              title="Send"
+            >
+              <FiSend size={22} />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
