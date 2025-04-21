@@ -5,6 +5,7 @@ import config from "../cofing";
 import { v4 as uuidv4 } from "uuid"; 
 import { FiSend, FiPaperclip } from "react-icons/fi";
 import { motion , AnimatePresence } from "framer-motion";
+import FileUploadModal from './FileUploadModal';
 const CACHE_LIMIT = 50; //  how many to keep
 const ChatWindow = ({ chat_id }) => {
   const [messages, setMessages] = useState([]);
@@ -14,7 +15,13 @@ const ChatWindow = ({ chat_id }) => {
 
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
+  const [showUpload, setShowUpload] = useState(false);   
 
+  const handleFiles = (files) => {
+    console.log("Selected files:", files);      
+    setShowUpload(false);
+  };
+  
   // helper – cache key per‑chat
   const cacheKey = `chat_cache_${chat_id}`;
 
@@ -144,6 +151,7 @@ const ChatWindow = ({ chat_id }) => {
               animate={{ y: 0,  opacity: 1 }}
               exit={{    y: -20, opacity: 0 }}      
               transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={() => setShowUpload(true)}
               title="Attach file"
             >
               <FiPaperclip size={22} />
@@ -164,6 +172,11 @@ const ChatWindow = ({ chat_id }) => {
           )}
         </AnimatePresence>
       </div>
+      <FileUploadModal
+        show={showUpload}
+        onClose={() => setShowUpload(false)}
+        onFiles={handleFiles}
+      />
     </div>
   );
 };
