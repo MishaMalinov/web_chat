@@ -59,7 +59,10 @@ class User extends Authenticatable implements HasMedia
 
     public function registerMediaCollections(): void
     {
+        $disk = env('GOOGLE_CLOUD_PROJECT_ID') ? 'gcs_media' : 'avatars';
+
         $this->addMediaCollection('avatar')
-            ->useDisk('gcs_media');
+            ->useDisk($disk);
     }
+
 }
