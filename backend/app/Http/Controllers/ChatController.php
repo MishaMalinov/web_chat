@@ -75,6 +75,9 @@ class ChatController extends Controller
                         'username' => $message->sender->username,
                     ],
                     'text' => $message->content,
+                    'attachment' => [
+                        'path' => $message->attachment ? $message->attachment->file_path : null,
+                    ],
                     'date' => $message->created_at->toDateTimeString(),
                 ];
             })

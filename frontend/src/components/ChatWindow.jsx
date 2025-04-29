@@ -17,10 +17,33 @@ const ChatWindow = ({ chat_id }) => {
   const socketRef = useRef(null);
   const [showUpload, setShowUpload] = useState(false);   
 
-  const handleFiles = (files) => {
-    console.log("Selected files:", files);      
-    setShowUpload(false);
+  const handleFiles = async (files) => {
+    if (!files || files.length === 0) return;
+    const temp_id = uuidv4();
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files[]", file); // або просто "file" якщо один файл
+    });
+  
+    formData.append("chat_id", chat_id);
+    formData.append("temp_id", temp_id);
+  
+    try {
+      const response = await axios.post(`${config.apiUrl}/upload-files`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+  
+      console.log("Upload success:", response.data);
+      setShowUpload(false);
+    } catch (err) {
+      console.error("Upload failed:", err);
+      // TODO: Можна показати повідомлення користувачу
+    }
   };
+  
   
   // helper – cache key per‑chat
   const cacheKey = `chat_cache_${chat_id}`;
@@ -125,6 +148,9 @@ const ChatWindow = ({ chat_id }) => {
             }`}
           >
             <div className="d-flex align-items-center">
+              {!msg.text && (
+                 <a className="text-white" href={msg.attachment.path}>File</a>
+              )}
               <span style={{ whiteSpace: "pre-wrap" }}>{msg.text}</span>
               {msg.pending && <span className="ms-2 pending-dot" title="Sending…" />}
             </div>
