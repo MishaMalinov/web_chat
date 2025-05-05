@@ -19,33 +19,48 @@ const ChatWindow = ({ chat_id }) => {
 
   const handleFiles = async (files) => {
     if (!files || files.length === 0) return;
-    const temp_id = uuidv4();
-    const formData = new FormData();
-    files.forEach((file) => {
-      formData.append("files[]", file); // або просто "file" якщо один файл
+  
+    files.forEach(async (file) => {
+      const temp_id = uuidv4();
+  
+      // Add pending message for file
+      setMessages((prev) => [
+        ...prev,
+        {
+          temp_id,
+          attachment: {
+            name: file.name,
+            size: file.size,
+          },
+          sender: { username: userData.username },
+          pending: true,
+        },
+      ]);
+  
+      const formData = new FormData();
+      formData.append("files[]", file);
+      formData.append("chat_id", chat_id);
+      formData.append("temp_id", temp_id);
+  
+      try {
+        await axios.post(`${config.apiUrl}/upload-files`, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+  
+        // The actual update will be handled via WebSocket response
+      } catch (err) {
+        console.error("Upload failed:", err);
+      }
     });
   
-    formData.append("chat_id", chat_id);
-    formData.append("temp_id", temp_id);
-  
-    try {
-      const response = await axios.post(`${config.apiUrl}/upload-files`, formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-  
-      console.log("Upload success:", response.data);
-      setShowUpload(false);
-    } catch (err) {
-      console.error("Upload failed:", err);
-      // TODO: Можна показати повідомлення користувачу
-    }
+    setShowUpload(false);
   };
   
   
-  // helper – cache key per‑chat
+  
   const cacheKey = `chat_cache_${chat_id}`;
 
   // ----------------- load cache first -----------------
@@ -93,7 +108,6 @@ const ChatWindow = ({ chat_id }) => {
 
     socket.onmessage = (e) => {
       const message = JSON.parse(e.data);
-
       setMessages((prev) => {
         if (message.temp_id && message.sender?.username === userData.username) {
           return prev.map((m) =>
