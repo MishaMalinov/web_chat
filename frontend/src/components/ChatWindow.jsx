@@ -2,141 +2,139 @@ import { useAuth } from "../context/AuthContext";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import config from "../cofing";
-import { v4 as uuidv4 } from "uuid"; 
+import { v4 as uuidv4 } from "uuid";
 import { FiSend, FiPaperclip } from "react-icons/fi";
-import { motion , AnimatePresence } from "framer-motion";
-import FileUploadModal from './FileUploadModal';
-const CACHE_LIMIT = 50; //  how many to keep
+import { motion, AnimatePresence } from "framer-motion";
+import FileUploadModal from "./FileUploadModal";
+
+const CACHE_LIMIT = 50;
+
 const ChatWindow = ({ chat_id }) => {
-  const [messages, setMessages] = useState([]);
-  const [input, setInput] = useState("");
   const { userData } = useAuth();
   const token = localStorage.getItem("token");
 
+  const [messages, setMessages] = useState([]);
+  const [input, setInput] = useState("");
+  const [showUpload, setShowUpload] = useState(false);
+
   const messagesEndRef = useRef(null);
   const socketRef = useRef(null);
-  const [showUpload, setShowUpload] = useState(false);   
+  const abortRef = useRef(null);
+  const firstFreshLoad = useRef(false);
+  const bottomRef = useRef(true);
 
-  const handleFiles = async (files) => {
-    if (!files || files.length === 0) return;
-  
-    files.forEach(async (file) => {
-      const temp_id = uuidv4();
-  
-      // Add pending message for file
-      setMessages((prev) => [
-        ...prev,
-        {
-          temp_id,
-          attachment: {
-            name: file.name,
-            size: file.size,
-          },
-          sender: { username: userData.username },
-          pending: true,
-        },
-      ]);
-  
-      const formData = new FormData();
-      formData.append("files[]", file);
-      formData.append("chat_id", chat_id);
-      formData.append("temp_id", temp_id);
-  
-      try {
-        await axios.post(`${config.apiUrl}/upload-files`, formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        });
-  
-        // The actual update will be handled via WebSocket response
-      } catch (err) {
-        console.error("Upload failed:", err);
-      }
+  /* ------------ helpers ------------ */
+  const scrollToBottom = (smooth = true) =>
+    messagesEndRef.current?.scrollIntoView({
+      behavior: smooth ? "smooth" : "auto",
     });
-  
-    setShowUpload(false);
-  };
-  
-  
-  
-  const cacheKey = `chat_cache_${chat_id}`;
 
-  // ----------------- load cache first -----------------
+  const linkLabel = (att) =>
+    (att?.url || att?.path || "").split(/[\\/]/).pop() || "File";
+
+  /* ------------ read cache ---------- */
   useEffect(() => {
     if (!chat_id) return setMessages([]);
-
-    const cached = localStorage.getItem(cacheKey);     
-    if (cached) setMessages(JSON.parse(cached));       // show cached messages ASAP
-  }, [chat_id]);                                       // separate effect (only load cache)
-
-  // ----------------- fetch fresh from API -----------------
-  useEffect(() => {
-    if (!chat_id) return;
-
-    const fetchChatContent = async () => {
-      try {
-        const { data } = await axios.get(
-          `${config.apiUrl}/chat-content?chat_id=${chat_id}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setMessages(data);                             // replaces cache once fresh arrives
-      } catch (err) {
-        console.error("Failed to load messages:", err);
-      }
-    };
-    fetchChatContent();
+    const cached = localStorage.getItem(`chat_cache_${chat_id}`);
+    if (cached) setMessages(JSON.parse(cached));
+    firstFreshLoad.current = false;
   }, [chat_id]);
 
-  // ----------------- save cache whenever messages change -----------------
+  /* ------------ fresh fetch --------- */
   useEffect(() => {
     if (!chat_id) return;
-    const lastMessages = messages.slice(-CACHE_LIMIT);
-    localStorage.setItem(cacheKey, JSON.stringify(lastMessages));
-  }, [messages, chat_id]);                             
 
-  // ----------------- WebSocket -----------------
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    axios
+      .get(`${config.apiUrl}/chat-content?chat_id=${chat_id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        signal: controller.signal,
+      })
+      .then(({ data }) => {
+        setMessages(data);
+        firstFreshLoad.current = true;
+      })
+      .catch((e) => !axios.isCancel(e) && console.error(e));
+
+    return () => controller.abort();
+  }, [chat_id]);
+
+  /* ------------ cache last 50 ------- */
+  useEffect(() => {
+    if (!chat_id) return;
+    localStorage.setItem(
+      `chat_cache_${chat_id}`,
+      JSON.stringify(messages.slice(-CACHE_LIMIT))
+    );
+  }, [messages, chat_id]);
+
+  /* ------------ scroll behaviour ---- */
+  const handleScroll = (e) => {
+    const el = e.target;
+    bottomRef.current =
+      el.scrollHeight - el.scrollTop - el.clientHeight < 60;
+  };
+
+  useEffect(() => {
+    if (firstFreshLoad.current) {
+      scrollToBottom(false);
+      firstFreshLoad.current = false;
+    } else if (bottomRef.current) {
+      scrollToBottom(true);
+    }
+  }, [messages]);
+
+  /* ------------ WebSocket ----------- */
   useEffect(() => {
     if (!chat_id) return;
     if (socketRef.current) socketRef.current.close();
 
-    const socket = new WebSocket(config.wssUrl);
-    socketRef.current = socket;
+    const ws = new WebSocket(config.wssUrl);
+    socketRef.current = ws;
 
-    socket.onopen = () => socket.send(JSON.stringify({ action: "subscribe", chat_id }));
+    ws.onopen = () =>
+      ws.send(JSON.stringify({ action: "subscribe", chat_id }));
 
-    socket.onmessage = (e) => {
-      const message = JSON.parse(e.data);
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data); // contains attachment.url OR text
+      if (msg.chat_id !== chat_id) return; // ignore late
+
       setMessages((prev) => {
-        if (message.temp_id && message.sender?.username === userData.username) {
-          return prev.map((m) =>
-            m.temp_id === message.temp_id ? { ...message, pending: false } : m
-          );
-        }
-        if (message.sender?.username !== userData.username) {
-          return [...prev, { ...message, pending: false }];
-        }
-        return prev;
+        let replaced = false;
+        const updated = prev.map((m) => {
+          if (m.temp_id && m.temp_id === msg.temp_id) {
+            if (m.attachment?.path?.startsWith("blob:"))
+              URL.revokeObjectURL(m.attachment.path);
+            replaced = true;
+            return { ...msg, pending: false };
+          }
+          return m;
+        });
+        return replaced
+          ? updated
+          : [...updated, { ...msg, pending: false }];
       });
     };
 
-    return () => socket.close();
+    return () => ws.close();
   }, [chat_id]);
 
-  // ----------------- auto‑scroll -----------------
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
-  // ----------------- send -----------------
-  const sendMessageHandler = async () => {
+  /* ------------ send text ----------- */
+  const sendText = async () => {
     if (!input.trim()) return;
-
     const temp_id = uuidv4();
-    setMessages((prev) => [
-      ...prev,
-      { temp_id, text: input, sender: { username: userData.username }, pending: true },
+
+    setMessages((p) => [
+      ...p,
+      {
+        temp_id,
+        text: input,
+        sender: { username: userData.username },
+        pending: true,
+      },
     ]);
     setInput("");
 
@@ -146,34 +144,91 @@ const ChatWindow = ({ chat_id }) => {
         { chat_id, message: input, temp_id },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-    } catch (err) {
-      console.error("Failed to send message:", err);
+    } catch (e) {
+      console.error("Send error:", e);
     }
   };
 
+  /* ------------ send files ---------- */
+  const handleFiles = async (files) => {
+    if (!files?.length) return;
+
+    files.forEach(async (file) => {
+      const temp_id = uuidv4();
+      const objURL = URL.createObjectURL(file); // temp link
+
+      setMessages((p) => [
+        ...p,
+        {
+          temp_id,
+          attachment: { name: file.name, size: file.size, path: objURL },
+          sender: { username: userData.username },
+          pending: true,
+        },
+      ]);
+
+      const fd = new FormData();
+      fd.append("files[]", file);
+      fd.append("chat_id", chat_id);
+      fd.append("temp_id", temp_id);
+
+      try {
+        await axios.post(`${config.apiUrl}/upload-files`, fd, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        });
+      } catch (e) {
+        console.error("Upload error:", e);
+      }
+    });
+
+    setShowUpload(false);
+  };
+
+  /* ============ RENDER ============== */
   return (
-    <div className="chat-window">
-      <div className="messages">
-        {messages.map((msg, i) => (
+    <div className="chat-window d-flex flex-column h-100">
+      {/* messages */}
+      <div
+        className="messages flex-grow-1 overflow-auto px-2"
+        onScroll={handleScroll}
+      >
+        {messages.map((m, i) => (
           <div
-            key={msg.id || msg.temp_id || i}
+            key={m.id || m.temp_id || i}
             className={`message ${
-              msg.sender.username === userData.username ? "sent" : "received"
+              m.sender.username === userData.username ? "sent" : "received"
             }`}
           >
             <div className="d-flex align-items-center">
-              {!msg.text && (
-                 <a className="text-white" href={msg.attachment.path}>File</a>
+              {m.attachment?.path || m.attachment?.url ? (
+                <a
+                  href={m.attachment.url || m.attachment.path}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="me-2 text-white text-decoration-underline"
+                >
+                  {linkLabel(m.attachment)}
+                </a>
+              ) : null}
+
+              {m.text && (
+                <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
               )}
-              <span style={{ whiteSpace: "pre-wrap" }}>{msg.text}</span>
-              {msg.pending && <span className="ms-2 pending-dot" title="Sending…" />}
+
+              {m.pending && (
+                <span className="ms-2 pending-dot" title="Sending…" />
+              )}
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="input-box d-flex ">
+      {/* input */}
+      <div className="input-box d-flex p-2 border-top">
         <textarea
           className="form-control flex-grow-1"
           placeholder="Type a message…"
@@ -187,11 +242,11 @@ const ChatWindow = ({ chat_id }) => {
             <motion.button
               key="attach"
               className="btn btn-primary ms-2"
-              initial={{ y: -20, opacity: 0 }}        
-              animate={{ y: 0,  opacity: 1 }}
-              exit={{    y: -20, opacity: 0 }}      
-              transition={{ duration: 0.2, ease: "easeOut" }}
               onClick={() => setShowUpload(true)}
+              initial={{ y: -20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: -20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
               title="Attach file"
             >
               <FiPaperclip size={22} />
@@ -200,11 +255,11 @@ const ChatWindow = ({ chat_id }) => {
             <motion.button
               key="send"
               className="btn btn-primary ms-2"
-              onClick={sendMessageHandler}
-              initial={{ y: 20, opacity: 0 }}       
-              animate={{ y: 0,  opacity: 1 }}
-              exit={{    y: 20, opacity: 0 }}      
-              transition={{ duration: 0.2, ease: "easeOut" }}
+              onClick={sendText}
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.2 }}
               title="Send"
             >
               <FiSend size={22} />
@@ -212,6 +267,8 @@ const ChatWindow = ({ chat_id }) => {
           )}
         </AnimatePresence>
       </div>
+
+      {/* modal */}
       <FileUploadModal
         show={showUpload}
         onClose={() => setShowUpload(false)}
