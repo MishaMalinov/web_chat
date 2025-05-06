@@ -32,6 +32,10 @@ const ChatWindow = ({ chat_id }) => {
   const linkLabel = (att) =>
     (att?.url || att?.path || "").split(/[\\/]/).pop() || "File";
 
+  const isImg = (att) =>
+    att?.type?.startsWith("image/") ||
+    /\.(png|jpe?g|gif|webp|bmp|svg)$/i.test(att?.url || att?.path || "");
+
   /* ------------ read cache ---------- */
   useEffect(() => {
     if (!chat_id) return setMessages([]);
@@ -99,8 +103,8 @@ const ChatWindow = ({ chat_id }) => {
       ws.send(JSON.stringify({ action: "subscribe", chat_id }));
 
     ws.onmessage = (e) => {
-      const msg = JSON.parse(e.data); // contains attachment.url OR text
-      if (msg.chat_id !== chat_id) return; // ignore late
+      const msg = JSON.parse(e.data);
+      if (msg.chat_id !== chat_id) return;
 
       setMessages((prev) => {
         let replaced = false;
@@ -113,9 +117,7 @@ const ChatWindow = ({ chat_id }) => {
           }
           return m;
         });
-        return replaced
-          ? updated
-          : [...updated, { ...msg, pending: false }];
+        return replaced ? updated : [...updated, { ...msg, pending: false }];
       });
     };
 
@@ -161,7 +163,12 @@ const ChatWindow = ({ chat_id }) => {
         ...p,
         {
           temp_id,
-          attachment: { name: file.name, size: file.size, path: objURL },
+          attachment: {
+            name: file.name,
+            size: file.size,
+            path: objURL,
+            type: file.type,
+          },
           sender: { username: userData.username },
           pending: true,
         },
@@ -195,35 +202,52 @@ const ChatWindow = ({ chat_id }) => {
         className="messages flex-grow-1 overflow-auto px-2"
         onScroll={handleScroll}
       >
-        {messages.map((m, i) => (
-          <div
-            key={m.id || m.temp_id || i}
-            className={`message ${
-              m.sender.username === userData.username ? "sent" : "received"
-            }`}
-          >
-            <div className="d-flex align-items-center">
-              {m.attachment?.path || m.attachment?.url ? (
-                <a
-                  href={m.attachment.url || m.attachment.path}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="me-2 text-white text-decoration-underline"
-                >
-                  {linkLabel(m.attachment)}
-                </a>
-              ) : null}
+        {messages.map((m, i) => {
+          const img = m.attachment && isImg(m.attachment);
+          const fileHref = m.attachment?.url || m.attachment?.path;
+          return (
+            <div
+              key={m.id || m.temp_id || i}
+              className={`message ${
+                m.sender.username === userData.username ? "sent" : "received"
+              }`}
+            >
+              <div className="d-flex align-items-center">
+                {img ? (
+                  <a href={fileHref} target="_blank" rel="noopener noreferrer">
+                    <img
+                      src={fileHref}
+                      alt={linkLabel(m.attachment)}
+                      style={{
+                        maxWidth: "100%",
+                        maxHeight: "260px",
+                        borderRadius: "8px",
+                      }}
+                      className="chat-img"
+                    />
+                  </a>
+                ) : m.attachment?.path || m.attachment?.url ? (
+                  <a
+                    href={fileHref}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="me-2 text-white text-decoration-underline"
+                  >
+                    {linkLabel(m.attachment)}
+                  </a>
+                ) : null}
 
-              {m.text && (
-                <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
-              )}
+                {m.text && (
+                  <span style={{ whiteSpace: "pre-wrap" }}>{m.text}</span>
+                )}
 
-              {m.pending && (
-                <span className="ms-2 pending-dot" title="Sending…" />
-              )}
+                {m.pending && (
+                  <span className="ms-2 pending-dot" title="Sending…" />
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
